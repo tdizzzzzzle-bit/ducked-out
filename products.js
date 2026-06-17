@@ -30,7 +30,7 @@ const products = [
     id: 'bartholomew',
     name: 'Bartholomew',
     shortDescription: 'Herein flies Bartholomew. Thou art warned.',
-    description: 'Hark. What manner of creature dost traverse yon sky with such confidence? 'Tis Bartholomew the Clappinator, hoarder of muffins. Ye be warned. Printed on a soft Bella+Canvas 3001 tee.',
+    description: "Hark. What manner of creature dost traverse yon sky with such confidence? 'Tis Bartholomew the Clappinator, hoarder of muffins. Ye be warned. Printed on a soft Bella+Canvas 3001 tee.",
     price: 28,
     image: 'Bartholomew.svg',
     stripeLink: 'https://buy.stripe.com/YOUR_Bartholomew_LINK',

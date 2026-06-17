@@ -27,13 +27,13 @@ const products = [
     stripeLink: 'https://buy.stripe.com/YOUR_SID_LINK',
   },
 {
-    id: 'sid',
-    name: 'Sid',
-    shortDescription: 'Punk rock ice cream duck.',
-    description: 'Sid is a duck whose entire body is a soft-serve ice cream cone. He has a violent red punk mohawk. He does not have legs. He does not need legs. Named after Sid Vicious, who also did not need legs. Printed on a soft Bella+Canvas 3001 tee.',
+    id: 'bartholomew',
+    name: 'Bartholomew',
+    shortDescription: 'Herein flies Bartholomew. Thou art warned.',
+    description: 'Hark. What manner of creature dost traverse yon sky with such confidence? 'Tis Bartholomew the Clappinator, hoarder of muffins. Ye be warned. Printed on a soft Bella+Canvas 3001 tee.',
     price: 28,
-    image: 'DuckCream.svg',
-    stripeLink: 'https://buy.stripe.com/YOUR_SID_LINK',
+    image: 'Bartholomew.svg',
+    stripeLink: 'https://buy.stripe.com/YOUR_Bartholomew_LINK',
   },
 
 ];

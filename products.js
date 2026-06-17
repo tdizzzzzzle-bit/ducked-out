@@ -3,7 +3,7 @@ const products = [
     id: 'gerald',
     name: 'Gerald',
     shortDescription: 'gerald.',
-    description: 'Gerald\n. Printed on a soft Bella+Canvas 3001 tee.',
+    description: 'Gerald.<br><br> Printed on a soft Bella+Canvas 3001 tee.',
     price: 28,
     image: 'Gerald.svg',
     stripeLink: 'https://buy.stripe.com/YOUR_GERALD_LINK',

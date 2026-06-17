@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Duck & Cover — Hand-Drawn Duck Tees</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;500;600&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <nav>
+    <a href="index.html" class="nav-logo">
+      <img src="gerald.svg" alt="Duck & Cover" class="nav-duck" />
+      <span>Duck & Cover</span>
+    </a>
+    <div class="nav-links">
+      <a href="shop.html">Shop</a>
+      <a href="about.html">About</a>
+    </div>
+    <button class="nav-toggle" onclick="toggleNav()">☰</button>
+  </nav>
+
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="shop.html" onclick="toggleNav()">Shop</a>
+    <a href="about.html" onclick="toggleNav()">About</a>
+  </div>
+
+  <section class="hero">
+    <div class="hero-text">
+      <p class="eyebrow">Hand-Drawn · DTF Pressed · Ships Fast</p>
+      <h1>Duck<br><span class="outline">&amp; Cover.</span></h1>
+      <p class="hero-sub">Absurd hand-drawn duck cartoons pressed on premium tees. Zero regrets. Plenty of quacking.</p>
+      <a href="shop.html" class="btn">Shop the Flock</a>
+    </div>
+    <div class="hero-duck">
+      <img src="gerald.svg" alt="Gerald the duck" />
+      <div class="speech-bubble">quack.</div>
+    </div>
+  </section>
+
+  <section class="wave-divider">
+    <svg viewBox="0 0 1200 80" preserveAspectRatio="none"><path d="M0,40 C150,80 350,0 600,40 C850,80 1050,0 1200,40 L1200,80 L0,80 Z" fill="var(--cream)"/></svg>
+  </section>
+
+  <section class="featured">
+    <div class="container">
+      <p class="eyebrow">Hand-Drawn Originals</p>
+      <h2>The Flock</h2>
+      <div class="product-grid" id="featuredGrid"></div>
+      <a href="shop.html" class="btn btn-outline">See All Designs →</a>
+    </div>
+  </section>
+
+  <section class="how-it-works">
+    <div class="container">
+      <p class="eyebrow">How It Works</p>
+      <h2>Made by Hand. Pressed In-House.</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step-icon">✏️</div>
+          <h3>Hand-Drawn</h3>
+          <p>Every duck is drawn by hand. No AI slop. Pure unhinged creativity.</p>
+        </div>
+        <div class="step">
+          <div class="step-icon">⚡</div>
+          <h3>DTF Transfer</h3>
+          <p>Transfers sourced from top suppliers. Vibrant, durable, wash-fast.</p>
+        </div>
+        <div class="step">
+          <div class="step-icon">🔥</div>
+          <h3>Heat Pressed</h3>
+          <p>Every shirt pressed in-house with care and mild chaos.</p>
+        </div>
+        <div class="step">
+          <div class="step-icon">📦</div>
+          <h3>Shipped to You</h3>
+          <p>Packed and shipped. Your duck is on its way.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container footer-inner">
+      <a href="index.html" class="footer-logo">Duck & Cover</a>
+      <p>© <span id="year"></span> Duck & Cover. All ducks reserved.</p>
+      <div class="footer-links">
+        <a href="shop.html">Shop</a>
+        <a href="about.html">About</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="products.js"></script>
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+    function toggleNav() {
+      document.getElementById('mobileMenu').classList.toggle('open');
+    }
+    // Render 3 featured products
+    const grid = document.getElementById('featuredGrid');
+    const featured = products.slice(0, 3);
+    featured.forEach(p => {
+      grid.innerHTML += `
+        <a href="product.html?id=${p.id}" class="product-card">
+          <div class="card-img">
+            <img src="${p.image}" alt="${p.name}" />
+          </div>
+          <div class="card-info">
+            <h3>${p.name}</h3>
+            <p>${p.shortDescription}</p>
+            <span class="price">$${p.price}</span>
+          </div>
+        </a>`;
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shop — Duck & Cover</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;500;600&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <nav>
+    <a href="index.html" class="nav-logo">
+      <img src="gerald.svg" alt="Duck & Cover" class="nav-duck" />
+      <span>Duck & Cover</span>
+    </a>
+    <div class="nav-links">
+      <a href="shop.html" class="active">Shop</a>
+      <a href="about.html">About</a>
+    </div>
+    <button class="nav-toggle" onclick="toggleNav()">☰</button>
+  </nav>
+
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="shop.html" onclick="toggleNav()">Shop</a>
+    <a href="about.html" onclick="toggleNav()">About</a>
+  </div>
+
+  <div class="page-header">
+    <div class="container">
+      <h1>The Shop</h1>
+      <p>Hand-drawn duck designs, pressed in-house on premium tees.</p>
+    </div>
+  </div>
+
+  <section class="shop-section">
+    <div class="container">
+      <div class="product-grid" id="shopGrid"></div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container footer-inner">
+      <a href="index.html" class="footer-logo">Duck & Cover</a>
+      <p>© <span id="year"></span> Duck & Cover. All ducks reserved.</p>
+      <div class="footer-links">
+        <a href="shop.html">Shop</a>
+        <a href="about.html">About</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="products.js"></script>
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+    function toggleNav() {
+      document.getElementById('mobileMenu').classList.toggle('open');
+    }
+    const grid = document.getElementById('shopGrid');
+    products.forEach(p => {
+      grid.innerHTML += `
+        <a href="product.html?id=${p.id}" class="product-card">
+          <div class="card-img">
+            <img src="${p.image}" alt="${p.name}" />
+          </div>
+          <div class="card-info">
+            <h3>${p.name}</h3>
+            <p>${p.shortDescription}</p>
+            <span class="price">$${p.price}</span>
+          </div>
+        </a>`;
+    });
+  </script>
+</body>
+</html>

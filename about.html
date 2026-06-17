@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About — Duck & Cover</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;500;600&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <nav>
+    <a href="index.html" class="nav-logo">
+      <img src="gerald.svg" alt="Duck & Cover" class="nav-duck" />
+      <span>Duck & Cover</span>
+    </a>
+    <div class="nav-links">
+      <a href="shop.html">Shop</a>
+      <a href="about.html" class="active">About</a>
+    </div>
+    <button class="nav-toggle" onclick="toggleNav()">☰</button>
+  </nav>
+
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="shop.html" onclick="toggleNav()">Shop</a>
+    <a href="about.html" onclick="toggleNav()">About</a>
+  </div>
+
+  <div class="page-header">
+    <div class="container">
+      <h1>About</h1>
+      <p>The story behind the ducks.</p>
+    </div>
+  </div>
+
+  <section class="about-section">
+    <div class="container about-inner">
+      <div class="about-img">
+        <img src="gerald.svg" alt="Gerald" />
+      </div>
+      <div class="about-text">
+        <h2>Hand-drawn, hand-pressed, shipped with love.</h2>
+        <p>Duck & Cover started with a simple idea: draw weird ducks, put them on shirts. Every design is drawn by hand with colored pencils — no AI, no stock art, no shortcuts.</p>
+        <p>Each shirt is pressed in-house using DTF transfers on premium Bella+Canvas blanks. That means every order is made with care, not churned out by a factory.</p>
+        <p>The ducks have names. They have personalities. Gerald wears roller skates and a party hat. Bernard is a horse that is also a duck. Sid is a punk rock ice cream cone. They don't explain themselves, and neither do we.</p>
+        <a href="shop.html" class="btn">Meet the Flock</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container footer-inner">
+      <a href="index.html" class="footer-logo">Duck & Cover</a>
+      <p>© <span id="year"></span> Duck & Cover. All ducks reserved.</p>
+      <div class="footer-links">
+        <a href="shop.html">Shop</a>
+        <a href="about.html">About</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+    function toggleNav() {
+      document.getElementById('mobileMenu').classList.toggle('open');
+    }
+  </script>
+</body>
+</html>

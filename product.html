@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Product — Duck & Cover</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;500;600&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <nav>
+    <a href="index.html" class="nav-logo">
+      <img src="gerald.svg" alt="Duck & Cover" class="nav-duck" />
+      <span>Duck & Cover</span>
+    </a>
+    <div class="nav-links">
+      <a href="shop.html">Shop</a>
+      <a href="about.html">About</a>
+    </div>
+    <button class="nav-toggle" onclick="toggleNav()">☰</button>
+  </nav>
+
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="shop.html" onclick="toggleNav()">Shop</a>
+    <a href="about.html" onclick="toggleNav()">About</a>
+  </div>
+
+  <div class="container product-page" id="productPage">
+    <p>Loading...</p>
+  </div>
+
+  <section class="related-section">
+    <div class="container">
+      <h2>More Like This</h2>
+      <div class="product-grid" id="relatedGrid"></div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container footer-inner">
+      <a href="index.html" class="footer-logo">Duck & Cover</a>
+      <p>© <span id="year"></span> Duck & Cover. All ducks reserved.</p>
+      <div class="footer-links">
+        <a href="shop.html">Shop</a>
+        <a href="about.html">About</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="products.js"></script>
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+    function toggleNav() {
+      document.getElementById('mobileMenu').classList.toggle('open');
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+    const product = products.find(p => p.id === id);
+    const page = document.getElementById('productPage');
+
+    if (!product) {
+      page.innerHTML = '<p>Product not found. <a href="shop.html">Back to shop</a></p>';
+    } else {
+      document.title = `${product.name} — Duck & Cover`;
+      page.innerHTML = `
+        <div class="breadcrumb">
+          <a href="index.html">Home</a> / <a href="shop.html">Shop</a> / <span>${product.name}</span>
+        </div>
+        <div class="product-detail">
+          <div class="product-detail-img">
+            <img src="${product.image}" alt="${product.name}" />
+          </div>
+          <div class="product-detail-info">
+            <h1>${product.name}</h1>
+            <div class="product-price">$${product.price}</div>
+            <p class="product-description">${product.description}</p>
+            <div class="product-details-box">
+              <div class="detail-row">→ Hand-drawn original design</div>
+              <div class="detail-row">→ DTF transfer, pressed in-house</div>
+              <div class="detail-row">→ Bella+Canvas 3001 tee</div>
+              <div class="detail-row">→ Sizes: S, M, L, XL, 2XL</div>
+            </div>
+            <a href="${product.stripeLink}" class="btn btn-buy">Buy Now →</a>
+            <p class="buy-note">You'll be taken to Stripe's secure checkout.</p>
+          </div>
+        </div>`;
+
+      // Related products
+      const related = products.filter(p => p.id !== product.id).slice(0, 3);
+      const relGrid = document.getElementById('relatedGrid');
+      related.forEach(p => {
+        relGrid.innerHTML += `
+          <a href="product.html?id=${p.id}" class="product-card">
+            <div class="card-img">
+              <img src="${p.image}" alt="${p.name}" />
+            </div>
+            <div class="card-info">
+              <h3>${p.name}</h3>
+              <p>${p.shortDescription}</p>
+              <span class="price">$${p.price}</span>
+            </div>
+          </a>`;
+      });
+    }
+  </script>
+</body>
+</html>

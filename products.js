@@ -12,7 +12,7 @@ const products = [
     id: 'bernard',
     name: 'Bernard',
     shortDescription: 'A Hork(Bernard), a Duorse(Reggie), and Nigel(Nigel)',
-    description: 'Bernard is a horse-duck. Not a duck riding a horse — the horse IS the duck. He wears a wide-brimmed hat. On his back rides Reggie, throwing a rock sign. On his hat sits Pip, a tiny chick, completely unbothered. Bernard carries them all without acknowledgment. Printed on a soft Bella+Canvas 3001 tee.',
+    description: 'Bernard is a hork. On his back rides Nigel. On his hat sits Reggie, the Duorse. Bernard carries them all without complaint. They are good company for a Hork like Bernard.\n Printed on a soft Bella+Canvas 3001 tee.',
     price: 28,
     image: 'Bernard.svg',
     stripeLink: 'https://buy.stripe.com/YOUR_BERNARD_LINK',

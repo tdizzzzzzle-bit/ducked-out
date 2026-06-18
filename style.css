@@ -135,8 +135,7 @@ nav {
   grid-template-columns: 1fr auto;
   gap: 2rem;
   align-items: center;
-  max-width: 1200px;
-  margin: 0 auto;
+  width: 100%;
   overflow: hidden;
 }
 
@@ -203,7 +202,9 @@ nav {
 
 .wave-divider {
   background: linear-gradient(135deg, var(--yellow) 0%, #E8B820 60%, #F5C842 100%);
-  margin-bottom: -2px;
+  margin: 0;
+  padding: 0;
+  display: block;
 }
 .wave-divider svg { display: block; width: 100%; }
 

@@ -108,17 +108,14 @@
       const [tr, tg, tb] = hexToRgb(hex);
 
       for (let i = 0; i < data.length; i += 4) {
-        const r = data[i], g = data[i+1], b = data[i+2], a = data[i+3];
-        if (a < 10) continue;
+  	const a = data[i+3];
+  	if (a < 10) continue;
 
-        // Grayscale value 0-1 (preserves wrinkle shading)
-        const brightness = (r + g + b) / (255 * 3);
-
-        data[i]   = Math.min(255, Math.round(tr * brightness));
-        data[i+1] = Math.min(255, Math.round(tg * brightness));
-        data[i+2] = Math.min(255, Math.round(tb * brightness));
+  	const brightness = (data[i] + data[i+1] + data[i+2]) / (255 * 3);
+  	data[i]   = Math.min(255, Math.round(tr * brightness));
+  	data[i+1] = Math.min(255, Math.round(tg * brightness));
+  	data[i+2] = Math.min(255, Math.round(tb * brightness));
       }
-
       offCtx.putImageData(imageData, 0, 0);
 
       // 3. Draw recolored shirt on top of person

@@ -69,9 +69,11 @@
       { name: 'Pink',         hex: '#F2A7BB' },
     ];
 
-    // Load the shirt image once, reuse for all recolors
-    const shirtImg = new Image();
-    shirtImg.src = 'shirt.png';
+    // Preload both images once
+    const personImg = new Image();
+    const shirtImg  = new Image();
+    personImg.src = 'person.png';
+    shirtImg.src  = 'shirt-gray.png';
 
     function hexToRgb(hex) {
       return [
@@ -81,50 +83,46 @@
       ];
     }
 
-    function recolorShirt(hex) {
+    function renderMockup(hex) {
       const canvas = document.getElementById('shirtCanvas');
       if (!canvas) return;
       const ctx = canvas.getContext('2d');
 
-      canvas.width  = shirtImg.naturalWidth;
-      canvas.height = shirtImg.naturalHeight;
-      ctx.drawImage(shirtImg, 0, 0);
+      // Size canvas to person image
+      canvas.width  = personImg.naturalWidth;
+      canvas.height = personImg.naturalHeight;
 
-      const [tr, tg, tb] = hexToRgb(hex);
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      // 1. Draw the person (no shirt)
+      ctx.drawImage(personImg, 0, 0);
+
+      // 2. Draw the grayscale shirt recolored
+      // First draw shirt to offscreen canvas to get pixel data
+      const offscreen = document.createElement('canvas');
+      offscreen.width  = shirtImg.naturalWidth;
+      offscreen.height = shirtImg.naturalHeight;
+      const offCtx = offscreen.getContext('2d');
+      offCtx.drawImage(shirtImg, 0, 0);
+
+      const imageData = offCtx.getImageData(0, 0, offscreen.width, offscreen.height);
       const data = imageData.data;
+      const [tr, tg, tb] = hexToRgb(hex);
 
-     function smoothstep(edge0, edge1, x) {
-  const t = Math.max(0, Math.min(1, (x - edge0) / (edge1 - edge0)));
-  return t * t * (3 - 2 * t);
-}
+      for (let i = 0; i < data.length; i += 4) {
+        const r = data[i], g = data[i+1], b = data[i+2], a = data[i+3];
+        if (a < 10) continue;
 
-for (let i = 0; i < data.length; i += 4) {
-  const r = data[i], g = data[i+1], b = data[i+2], a = data[i+3];
-  if (a < 10) continue;
+        // Grayscale value 0-1 (preserves wrinkle shading)
+        const brightness = (r + g + b) / (255 * 3);
 
-  const rn = r/255, gn = g/255, bn = b/255;
-  const max = Math.max(rn,gn,bn), min = Math.min(rn,gn,bn);
-  const l = (max + min) / 2;
-  const s = max === min ? 0 : (max - min) / (1 - Math.abs(2*l - 1));
+        data[i]   = Math.min(255, Math.round(tr * brightness));
+        data[i+1] = Math.min(255, Math.round(tg * brightness));
+        data[i+2] = Math.min(255, Math.round(tb * brightness));
+      }
 
-  // Smooth blend factor: fully recolor bright+grey pixels, fade at edges
-	const lightBlend = smoothstep(0.45, 0.75, l);
-	const satBlend   = smoothstep(0.35, 0.05, s);
-  const blend      = lightBlend * satBlend;
+      offCtx.putImageData(imageData, 0, 0);
 
-  if (blend > 0) {
-    const brightness = (r + g + b) / (255 * 3);
-    const nr = Math.min(255, Math.round(tr * brightness));
-    const ng = Math.min(255, Math.round(tg * brightness));
-    const nb = Math.min(255, Math.round(tb * brightness));
-    data[i]   = Math.round(r * (1 - blend) + nr * blend);
-    data[i+1] = Math.round(g * (1 - blend) + ng * blend);
-    data[i+2] = Math.round(b * (1 - blend) + nb * blend);
-  }
-}
-
-      ctx.putImageData(imageData, 0, 0);
+      // 3. Draw recolored shirt on top of person
+      ctx.drawImage(offscreen, 0, 0, canvas.width, canvas.height);
     }
 
     function setShirtColor(hex, name) {
@@ -132,8 +130,19 @@ for (let i = 0; i < data.length; i += 4) {
       document.querySelectorAll('.color-swatch').forEach(s => {
         s.classList.toggle('active', s.dataset.hex === hex);
       });
-      recolorShirt(hex);
+      renderMockup(hex);
     }
+
+    // Wait for both images before first render
+    let loadedCount = 0;
+    function onImageLoad() {
+      loadedCount++;
+      if (loadedCount === 2) renderMockup('#FFFFFF');
+    }
+    personImg.onload = onImageLoad;
+    shirtImg.onload  = onImageLoad;
+    if (personImg.complete) onImageLoad();
+    if (shirtImg.complete)  onImageLoad();
 
     // ── Render product ──
     const params = new URLSearchParams(window.location.search);
@@ -149,7 +158,7 @@ for (let i = 0; i < data.length; i += 4) {
       const swatchHTML = SHIRT_COLORS.map(c => `
         <button
           class="color-swatch${c.hex === '#FFFFFF' ? ' active' : ''}"
-          style="background:${c.hex};${c.hex==='#FFFFFF'?'border-color:#C0B8A8;':''}"
+          style="background:${c.hex};${c.hex==='#FFFFFF' ? 'border-color:#C0B8A8;' : ''}"
           data-hex="${c.hex}"
           title="${c.name}"
           onclick="setShirtColor('${c.hex}','${c.name}')">
@@ -187,12 +196,8 @@ for (let i = 0; i < data.length; i += 4) {
           </div>
         </div>`;
 
-      // Wait for shirt image to load then render
-      if (shirtImg.complete) {
-        recolorShirt('#FFFFFF');
-      } else {
-        shirtImg.onload = () => recolorShirt('#FFFFFF');
-      }
+      // Trigger render after DOM is ready
+      if (loadedCount === 2) renderMockup('#FFFFFF');
 
       // Related products
       const related = products.filter(p => p.id !== product.id).slice(0, 3);

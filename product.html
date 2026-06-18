@@ -94,25 +94,35 @@
       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
       const data = imageData.data;
 
-      for (let i = 0; i < data.length; i += 4) {
-        const r = data[i], g = data[i+1], b = data[i+2], a = data[i+3];
-        if (a < 10) continue; // skip transparent pixels
+     function smoothstep(edge0, edge1, x) {
+  const t = Math.max(0, Math.min(1, (x - edge0) / (edge1 - edge0)));
+  return t * t * (3 - 2 * t);
+}
 
-        // Convert to HSL to detect shirt fabric (light + low saturation)
-        const rn = r/255, gn = g/255, bn = b/255;
-        const max = Math.max(rn,gn,bn), min = Math.min(rn,gn,bn);
-        const l = (max + min) / 2;
-        const s = max === min ? 0 : (max - min) / (1 - Math.abs(2*l - 1));
+for (let i = 0; i < data.length; i += 4) {
+  const r = data[i], g = data[i+1], b = data[i+2], a = data[i+3];
+  if (a < 10) continue;
 
-        // Shirt pixels: fairly light, not very colourful
-        if (l > 0.55 && s < 0.22) {
-          // Use pixel brightness to preserve wrinkle shading
-          const brightness = (r + g + b) / (255 * 3);
-          data[i]   = Math.min(255, Math.round(tr * brightness));
-          data[i+1] = Math.min(255, Math.round(tg * brightness));
-          data[i+2] = Math.min(255, Math.round(tb * brightness));
-        }
-      }
+  const rn = r/255, gn = g/255, bn = b/255;
+  const max = Math.max(rn,gn,bn), min = Math.min(rn,gn,bn);
+  const l = (max + min) / 2;
+  const s = max === min ? 0 : (max - min) / (1 - Math.abs(2*l - 1));
+
+  // Smooth blend factor: fully recolor bright+grey pixels, fade at edges
+  const lightBlend = smoothstep(0.55, 0.78, l);
+  const satBlend   = smoothstep(0.22, 0.06, s);
+  const blend      = lightBlend * satBlend;
+
+  if (blend > 0) {
+    const brightness = (r + g + b) / (255 * 3);
+    const nr = Math.min(255, Math.round(tr * brightness));
+    const ng = Math.min(255, Math.round(tg * brightness));
+    const nb = Math.min(255, Math.round(tb * brightness));
+    data[i]   = Math.round(r * (1 - blend) + nr * blend);
+    data[i+1] = Math.round(g * (1 - blend) + ng * blend);
+    data[i+2] = Math.round(b * (1 - blend) + nb * blend);
+  }
+}
 
       ctx.putImageData(imageData, 0, 0);
     }

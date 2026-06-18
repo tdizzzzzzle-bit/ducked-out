@@ -130,14 +130,27 @@ nav {
 /* ── Hero ── */
 .hero {
   background: linear-gradient(135deg, var(--yellow) 0%, #E8B820 60%, #F5C842 100%);
-  padding: 4rem 1.5rem 0;
-  display: grid;
-  grid-template-columns: 1fr auto;
+  padding: 4rem 5% 0;
+  display: flex;
+  flex-wrap: wrap;
   gap: 2rem;
   align-items: center;
-  max-width: 1200px;
-  margin: 0 auto;
+  justify-content: space-between;
+  width: 100%;
   overflow: hidden;
+}
+
+.hero-text {
+  flex: 1 1 300px;
+  min-width: 0;
+}
+
+.hero-duck {
+  flex: 0 1 280px;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
 }
 
 .eyebrow {
@@ -175,12 +188,6 @@ nav {
   font-weight: 500;
 }
 
-.hero-duck {
-  position: relative;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-}
 .hero-duck img {
   width: clamp(160px, 25vw, 280px);
   filter: drop-shadow(0 12px 32px rgba(12,45,72,0.2));
@@ -203,7 +210,9 @@ nav {
 
 .wave-divider {
   background: linear-gradient(135deg, var(--yellow) 0%, #E8B820 60%, #F5C842 100%);
-  margin-bottom: -2px;
+  margin: 0;
+  padding: 0;
+  display: block;
 }
 .wave-divider svg { display: block; width: 100%; }
 
@@ -355,18 +364,11 @@ nav {
 }
 
 .product-detail-img {
-  background: var(--cream);
   border-radius: var(--radius);
-  border: 2px solid #E8E0D0;
-  padding: 3rem 2rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 400px;
+  overflow: hidden;
   position: sticky;
   top: 80px;
 }
-.product-detail-img img { max-height: 320px; object-fit: contain; }
 
 .product-detail-info h1 {
   font-family: var(--font-display);
@@ -479,16 +481,12 @@ footer {
   .nav-links { display: none; }
   .nav-toggle { display: block; }
 
-  .hero {
-    grid-template-columns: 1fr;
-    text-align: center;
-    padding-bottom: 2rem;
-  }
+  .hero { padding: 3rem 5% 0; }
   .hero-duck { justify-content: center; margin-top: 1rem; }
   .hero-sub { margin: 0 auto 2rem; }
 
   .product-detail { grid-template-columns: 1fr; }
-  .product-detail-img { position: static; min-height: 280px; }
+  .product-detail-img { position: static; }
 
   .about-inner { grid-template-columns: 1fr; }
   .about-img { display: none; }
@@ -543,6 +541,7 @@ footer {
   margin: 0 auto;
   border-radius: var(--radius);
   overflow: hidden;
+  background: white;
 }
 
 .shirt-canvas {

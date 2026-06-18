@@ -109,8 +109,8 @@ for (let i = 0; i < data.length; i += 4) {
   const s = max === min ? 0 : (max - min) / (1 - Math.abs(2*l - 1));
 
   // Smooth blend factor: fully recolor bright+grey pixels, fade at edges
-  const lightBlend = smoothstep(0.55, 0.78, l);
-  const satBlend   = smoothstep(0.22, 0.06, s);
+	const lightBlend = smoothstep(0.45, 0.75, l);
+	const satBlend   = smoothstep(0.35, 0.05, s);
   const blend      = lightBlend * satBlend;
 
   if (blend > 0) {

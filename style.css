@@ -495,3 +495,80 @@ footer {
 
   .footer-inner { flex-direction: column; text-align: center; }
 }
+
+/* ── Color Picker ── */
+.color-picker-section {
+  margin-bottom: 1.5rem;
+}
+.color-picker-label {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.82rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--pond);
+  margin-bottom: 0.75rem;
+}
+.color-picker-label span {
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--orange);
+  font-weight: 600;
+}
+.color-swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.color-swatch {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 0.15s, outline 0.15s;
+  outline: none;
+}
+.color-swatch:hover { transform: scale(1.15); }
+.color-swatch.active {
+  outline: 3px solid var(--pond);
+  outline-offset: 2px;
+}
+
+/* ── Shirt Mockup ── */
+.shirt-mockup {
+  position: relative;
+  width: 100%;
+  max-width: 460px;
+  margin: 0 auto;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: #f0f0f0;
+}
+
+.shirt-photo {
+  width: 100%;
+  display: block;
+  position: relative;
+  z-index: 1;
+}
+
+.shirt-color-overlay {
+  position: absolute;
+  inset: 0;
+  background: #FFFFFF;
+  mix-blend-mode: multiply;
+  z-index: 2;
+  transition: background 0.25s ease;
+}
+
+.shirt-design {
+  position: absolute;
+  /* Chest area: tweak these to position the duck perfectly */
+  top: 18%;
+  left: 28%;
+  width: 44%;
+  z-index: 3;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.2));
+  pointer-events: none;
+}

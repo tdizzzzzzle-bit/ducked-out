@@ -12,7 +12,7 @@
 
   <nav>
     <a href="index.html" class="nav-logo">
-      <img src="gerald.svg" alt="Duck & Cover" class="nav-duck" />
+      <img src="Gerald.svg" alt="Duck & Cover" class="nav-duck" />
       <span>Duck & Cover</span>
     </a>
     <div class="nav-links">
@@ -56,6 +56,30 @@
       document.getElementById('mobileMenu').classList.toggle('open');
     }
 
+    const SHIRT_COLORS = [
+      { name: 'White',        hex: '#FFFFFF' },
+      { name: 'Black',        hex: '#2B2B2B' },
+      { name: 'Navy',         hex: '#1B2A4A' },
+      { name: 'Heather Grey', hex: '#B0AEA8' },
+      { name: 'Red',          hex: '#C41230' },
+      { name: 'Forest Green', hex: '#2D5A27' },
+      { name: 'Maroon',       hex: '#6B1F2E' },
+      { name: 'Royal Blue',   hex: '#1A58A5' },
+      { name: 'Yellow',       hex: '#F5C842' },
+      { name: 'Pink',         hex: '#F2A7BB' },
+    ];
+
+    function setShirtColor(hex, name) {
+      // The color overlay sits on top of the white shirt using multiply
+      // White * color = color, so the shirt becomes that color
+      // For dark colors we boost opacity slightly
+      document.getElementById('shirtColorOverlay').style.background = hex;
+      document.getElementById('colorLabel').textContent = name;
+      document.querySelectorAll('.color-swatch').forEach(s => {
+        s.classList.toggle('active', s.dataset.hex === hex);
+      });
+    }
+
     const params = new URLSearchParams(window.location.search);
     const id = params.get('id');
     const product = products.find(p => p.id === id);
@@ -65,18 +89,45 @@
       page.innerHTML = '<p>Product not found. <a href="shop.html">Back to shop</a></p>';
     } else {
       document.title = `${product.name} — Duck & Cover`;
+
+      const swatchHTML = SHIRT_COLORS.map(c => `
+        <button
+          class="color-swatch${c.hex === '#FFFFFF' ? ' active' : ''}"
+          style="background:${c.hex};${c.hex==='#FFFFFF' ? 'border-color:#C0B8A8;' : ''}"
+          data-hex="${c.hex}"
+          title="${c.name}"
+          onclick="setShirtColor('${c.hex}', '${c.name}')">
+        </button>`).join('');
+
       page.innerHTML = `
         <div class="breadcrumb">
           <a href="index.html">Home</a> / <a href="shop.html">Shop</a> / <span>${product.name}</span>
         </div>
         <div class="product-detail">
+
           <div class="product-detail-img">
-            <img src="${product.image}" alt="${product.name}" />
+            <div class="shirt-mockup">
+              <!-- Base: the shirt photo -->
+              <img src="shirt.png" alt="shirt" class="shirt-photo" />
+              <!-- Color overlay: multiply blends with white shirt -->
+              <div id="shirtColorOverlay" class="shirt-color-overlay"></div>
+              <!-- Duck design on the chest -->
+              <img src="${product.image}" alt="${product.name}" class="shirt-design" />
+            </div>
           </div>
+
           <div class="product-detail-info">
             <h1>${product.name}</h1>
             <div class="product-price">$${product.price}</div>
             <p class="product-description">${product.description}</p>
+
+            <div class="color-picker-section">
+              <div class="color-picker-label">
+                Shirt Color — <span id="colorLabel">White</span>
+              </div>
+              <div class="color-swatches">${swatchHTML}</div>
+            </div>
+
             <div class="product-details-box">
               <div class="detail-row">→ Hand-drawn original design</div>
               <div class="detail-row">→ DTF transfer, pressed in-house</div>

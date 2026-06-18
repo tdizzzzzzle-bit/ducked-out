@@ -135,7 +135,8 @@ nav {
   grid-template-columns: 1fr auto;
   gap: 2rem;
   align-items: center;
-  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
   overflow: hidden;
 }
 
@@ -202,9 +203,7 @@ nav {
 
 .wave-divider {
   background: linear-gradient(135deg, var(--yellow) 0%, #E8B820 60%, #F5C842 100%);
-  margin: 0;
-  padding: 0;
-  display: block;
+  margin-bottom: -2px;
 }
 .wave-divider svg { display: block; width: 100%; }
 
@@ -544,28 +543,20 @@ footer {
   margin: 0 auto;
   border-radius: var(--radius);
   overflow: hidden;
-  background: #ffffff;
 }
 
-.shirt-photo {
+.shirt-canvas {
   width: 100%;
+  height: auto;
   display: block;
-}
-.shirt-color-overlay {
-  position: absolute;
-  inset: 0;
-  background: #FFFFFF;
-  mix-blend-mode: multiply;
-  z-index: 2;
-  transition: background 0.25s ease;
 }
 
 .shirt-design {
   position: absolute;
-  top: 20%;
+  top: 18%;
   left: 25%;
   width: 50%;
   z-index: 3;
-  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.2));
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.25));
   pointer-events: none;
 }

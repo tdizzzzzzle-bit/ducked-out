@@ -678,3 +678,176 @@ footer {
   background: var(--yellow-dark);
   transform: translateY(-1px);
 }
+
+/* ── Shop Admin Bar ── */
+.shop-admin-bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: var(--pond);
+  border: 2px solid var(--yellow);
+  border-radius: 12px;
+  padding: 0.75rem 1.25rem;
+  margin-bottom: 1.5rem;
+}
+.shop-admin-label {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--yellow);
+  font-size: 0.9rem;
+}
+
+/* ── Create Product Page ── */
+.admin-create-page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+}
+.admin-create-header {
+  margin-bottom: 2rem;
+}
+.admin-create-header h1 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  color: var(--pond);
+  margin-bottom: 0.25rem;
+}
+.admin-create-header p {
+  color: var(--text-light);
+  font-size: 0.95rem;
+}
+.admin-create-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2.5rem;
+  align-items: start;
+}
+.admin-create-preview {
+  position: sticky;
+  top: 80px;
+}
+
+/* ── Form ── */
+.form-group {
+  margin-bottom: 1.25rem;
+}
+.form-label {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--pond);
+  margin-bottom: 0.4rem;
+}
+.form-input {
+  width: 100%;
+  padding: 0.65rem 0.85rem;
+  border: 2px solid #D8D0C4;
+  border-radius: 10px;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: var(--text);
+  background: white;
+  transition: border-color 0.2s;
+  outline: none;
+}
+.form-input:focus { border-color: var(--pond); }
+.form-textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+.form-hint {
+  font-size: 0.75rem;
+  color: var(--text-light);
+  margin-top: 0.3rem;
+}
+.form-hint code {
+  background: #eee;
+  padding: 0.1rem 0.3rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
+/* ── File Drop ── */
+.file-drop {
+  border: 2px dashed #C0B8A8;
+  border-radius: 12px;
+  padding: 2rem 1rem;
+  text-align: center;
+  cursor: pointer;
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  color: var(--text-light);
+  transition: border-color 0.2s, background 0.2s;
+  background: #faf8f4;
+}
+.file-drop:hover {
+  border-color: var(--pond);
+  background: #f0f4f8;
+}
+
+/* ── Export section ── */
+.admin-export-section {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 2px solid #E8E0D0;
+}
+.export-error {
+  margin-top: 0.75rem;
+  background: #fff0f0;
+  border: 1.5px solid #e04040;
+  color: #c00;
+  border-radius: 8px;
+  padding: 0.65rem 0.85rem;
+  font-size: 0.85rem;
+  font-family: var(--font-display);
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .admin-create-body { grid-template-columns: 1fr; }
+  .admin-create-preview { position: static; }
+}
+
+/* ── Admin Edit Fields ── */
+.admin-field-label {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.78rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.6);
+  margin-bottom: 0.3rem;
+  margin-top: 0.65rem;
+}
+.admin-field-input {
+  width: 100%;
+  padding: 0.5rem 0.7rem;
+  border: 1.5px solid rgba(255,255,255,0.2);
+  border-radius: 8px;
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  color: white;
+  background: rgba(255,255,255,0.08);
+  outline: none;
+  transition: border-color 0.2s;
+}
+.admin-field-input:focus { border-color: var(--yellow); }
+.admin-field-textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+.admin-panel .file-drop {
+  border-color: rgba(255,255,255,0.25);
+  background: rgba(255,255,255,0.05);
+  color: rgba(255,255,255,0.65);
+  font-size: 0.82rem;
+}
+.admin-panel .file-drop:hover {
+  border-color: var(--yellow);
+  background: rgba(255,255,255,0.08);
+}

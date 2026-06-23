@@ -12,11 +12,11 @@
 
   <nav>
     <a href="index.html" class="nav-logo">
-      <img src="gerald.svg" alt="Duck & Cover" class="nav-duck" />
+      <img src="Gerald.svg" alt="Duck & Cover" class="nav-duck" />
       <span>Duck & Cover</span>
     </a>
     <div class="nav-links">
-      <a href="shop.html" class="active">Shop</a>
+      <a href="shop.html">Shop</a>
       <a href="about.html">About</a>
     </div>
     <button class="nav-toggle" onclick="toggleNav()">☰</button>
@@ -36,6 +36,7 @@
 
   <section class="shop-section">
     <div class="container">
+      <div id="adminBar"></div>
       <div class="product-grid" id="shopGrid"></div>
     </div>
   </section>
@@ -54,22 +55,38 @@
   <script src="products.js"></script>
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
+
     function toggleNav() {
       document.getElementById('mobileMenu').classList.toggle('open');
     }
-    const grid = document.getElementById('shopGrid');
-    products.forEach(p => {
-      grid.innerHTML += `
-        <a href="product.html?id=${p.id}" class="product-card">
-          <div class="card-img">
-            <img src="${p.image}" alt="${p.name}" />
-          </div>
-          <div class="card-info">
-            <h3>${p.name}</h3>
-            <p>${p.shortDescription}</p>
-            <span class="price">$${p.price}</span>
-          </div>
-        </a>`;
+
+    var urlParams = new URLSearchParams(window.location.search);
+    var IS_ADMIN  = urlParams.get('admin') === 'quack';
+
+    // Admin bar
+    if (IS_ADMIN) {
+      document.getElementById('adminBar').innerHTML =
+        '<div class="shop-admin-bar">'
+        + '<span class="shop-admin-label">🛠 Admin Mode</span>'
+        + '<a href="create-product.html?admin=quack" class="admin-export" style="display:inline-block;text-decoration:none;">+ Add New Duck</a>'
+        + '</div>';
+    }
+
+    // Product grid
+    var grid = document.getElementById('shopGrid');
+    products.forEach(function(p) {
+      var link = IS_ADMIN
+        ? 'product.html?id=' + p.id + '&admin=quack'
+        : 'product.html?id=' + p.id;
+      grid.innerHTML +=
+        '<a href="' + link + '" class="product-card">'
+        + '<div class="card-img"><img src="' + p.image + '" alt="' + p.name + '" /></div>'
+        + '<div class="card-info">'
+        + '<h3>' + p.name + '</h3>'
+        + '<p>' + p.shortDescription + '</p>'
+        + '<span class="price">$' + p.price + '</span>'
+        + '</div>'
+        + '</a>';
     });
   </script>
 </body>

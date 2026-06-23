@@ -43,9 +43,7 @@ const products = [
     id: "toby",
     name: "Toby",
     shortDescription: "WHYYYY!?!",
-    description: "He has no mouth, and he must scream.
-
-Printed on a soft Bella+Canvas 3001 tee.",
+    description: "He has no mouth, and he must scream.<br>Printed on a soft Bella+Canvas 3001 tee.",
     price: 18,
     image: "Toby.svg",
     stripeLink: "https://buy.stripe.com/YOUR_LINK",

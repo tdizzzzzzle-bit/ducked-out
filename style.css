@@ -519,18 +519,22 @@ footer {
   gap: 8px;
 }
 .color-swatch {
-  width: 32px;
-  height: 32px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   border: 2px solid transparent;
   cursor: pointer;
   transition: transform 0.15s, outline 0.15s;
   outline: none;
+  flex-shrink: 0;
 }
-.color-swatch:hover { transform: scale(1.15); }
+.color-swatch:hover { transform: scale(1.2); }
 .color-swatch.active {
   outline: 3px solid var(--pond);
   outline-offset: 2px;
+}
+.admin-panel .color-swatch.active {
+  outline-color: var(--yellow);
 }
 
 /* ── Shirt Mockup ── */

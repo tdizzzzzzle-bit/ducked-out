@@ -61,6 +61,11 @@
           </div>
           <div class="admin-output" id="placementOutput">placement: { size: 40, x: 30, y: 35 }</div>
         </div>
+
+        <div class="admin-panel" style="margin-top:0.75rem;">
+          <div class="admin-title">🎨 Preview Color — <span id="previewColorLabel">White</span></div>
+          <div class="color-swatches" id="previewSwatches" style="margin-top:0.5rem;"></div>
+        </div>
       </div>
 
       <!-- RIGHT: Form -->
@@ -150,6 +155,7 @@
       if (imagesReady >= 2) renderMockup('#FFFFFF');
     }
     shirtImg.addEventListener('load', imageLoaded);
+    window.addEventListener('load', buildSwatches);
     armsImg.addEventListener('load', imageLoaded);
     if (shirtImg.complete) imageLoaded();
     if (armsImg.complete)  imageLoaded();
@@ -199,6 +205,102 @@
       document.getElementById('labelY').textContent    = y + '%';
       document.getElementById('placementOutput').textContent =
         'placement: { size: ' + size + ', x: ' + x + ', y: ' + y + ' }';
+    }
+
+    // ── Shirt color picker ──
+    var SHIRT_COLORS = [
+      { name: 'White',             hex: '#FFFFFF' },
+      { name: 'Natural',           hex: '#F2EDD7' },
+      { name: 'Cornsilk',          hex: '#FFF5CC' },
+      { name: 'Ice Grey',          hex: '#DCDCDC' },
+      { name: 'Ash Grey',          hex: '#B5B2AE' },
+      { name: 'Sport Grey',        hex: '#8E8E8E' },
+      { name: 'Gravel',            hex: '#797979' },
+      { name: 'Tweed',             hex: '#9E8E72' },
+      { name: 'Graphite Heather',  hex: '#646464' },
+      { name: 'Dark Heather',      hex: '#464646' },
+      { name: 'Charcoal',          hex: '#3C3C3C' },
+      { name: 'Black',             hex: '#1C1C1C' },
+      { name: 'Light Pink',        hex: '#F9C5C9' },
+      { name: 'Safety Pink',       hex: '#FF82A9' },
+      { name: 'Azalea',            hex: '#F96680' },
+      { name: 'Coral Silk',        hex: '#F47E72' },
+      { name: 'Heliconia',         hex: '#E0226B' },
+      { name: 'Heather Red',       hex: '#CC3333' },
+      { name: 'Red',               hex: '#CC1818' },
+      { name: 'Cardinal Red',      hex: '#BC1010' },
+      { name: 'Antque Cherry Rd',  hex: '#83111B' },
+      { name: 'Garnet',            hex: '#5C1A2E' },
+      { name: 'Maroon',            hex: '#6B0F1A' },
+      { name: 'Berry',             hex: '#7B1240' },
+      { name: 'Blackberry',        hex: '#3E0E1C' },
+      { name: 'Sunset',            hex: '#FF8C42' },
+      { name: 'Antique Orange',    hex: '#C16A2E' },
+      { name: 'S Orange',          hex: '#F15A22' },
+      { name: 'T Orange',          hex: '#FF6A00' },
+      { name: 'Tennessee Orange',  hex: '#FF8200' },
+      { name: 'Orange',            hex: '#FF6600' },
+      { name: 'Daisy',             hex: '#FAD13A' },
+      { name: 'Yellow Haze',       hex: '#DFC96A' },
+      { name: 'Old Gold',          hex: '#C9A84C' },
+      { name: 'Gold',              hex: '#E8A820' },
+      { name: 'Safety Green',      hex: '#78FF44' },
+      { name: 'Electric Green',    hex: '#39E600' },
+      { name: 'Neon Green',        hex: '#6FEE18' },
+      { name: 'Lime',              hex: '#A8E53E' },
+      { name: 'Kiwi',              hex: '#8DB33A' },
+      { name: 'Mint Green',        hex: '#AAE8C0' },
+      { name: 'Irish Green',       hex: '#009944' },
+      { name: 'Antiq Irish Grn',   hex: '#006838' },
+      { name: 'Turf Green',        hex: '#3E7D44' },
+      { name: 'Forest Green',      hex: '#2D5A27' },
+      { name: 'Hthr Militry Grn',  hex: '#636B4E' },
+      { name: 'Military Green',    hex: '#506028' },
+      { name: 'Antiqu Jade Dome',  hex: '#2E7D60' },
+      { name: 'Neon Blue',         hex: '#1EB8FF' },
+      { name: 'Sky',               hex: '#8EC9E8' },
+      { name: 'Light Blue',        hex: '#6EB4D8' },
+      { name: 'Tropical Blue',     hex: '#0082C4' },
+      { name: 'Cobalt',            hex: '#1050A0' },
+      { name: 'Heather Sapphire',  hex: '#4074A8' },
+      { name: 'Royal',             hex: '#2850A0' },
+      { name: 'Sapphire',          hex: '#1C5096' },
+      { name: 'Antique Sapphire',  hex: '#3C5C78' },
+      { name: 'Indigo Blue',       hex: '#304080' },
+      { name: 'Heather Navy',      hex: '#2C3C60' },
+      { name: 'Navy',              hex: '#1A2848' },
+      { name: 'Midnight',          hex: '#141E32' },
+      { name: 'Hthr Rdnt Orchid',  hex: '#A85CA0' },
+      { name: 'Lilac',             hex: '#C098C8' },
+      { name: 'Violet',            hex: '#7040A0' },
+      { name: 'Purple',            hex: '#5020A0' },
+      { name: 'Sand',              hex: '#C8B08C' },
+      { name: 'Brown Savana',      hex: '#8C6030' },
+      { name: 'Dark Chocolate',    hex: '#3C1C10' },
+    ];
+
+    var currentPreviewColor = '#FFFFFF';
+    function setPreviewColor(hex, name) {
+      currentPreviewColor = hex;
+      renderMockup(hex);
+      document.getElementById('previewColorLabel').textContent = name;
+      document.querySelectorAll('.preview-swatch').forEach(function(s) {
+        s.classList.toggle('active', s.dataset.hex === hex);
+      });
+    }
+
+    function buildSwatches() {
+      var html = '';
+      SHIRT_COLORS.forEach(function(c) {
+        html += '<button class="color-swatch preview-swatch'
+          + (c.hex === '#FFFFFF' ? ' active' : '') + '"'
+          + ' style="background:' + c.hex + ';'
+          + (c.hex === '#FFFFFF' ? 'border-color:#C0B8A8;' : '') + '"'
+          + ' data-hex="' + c.hex + '" title="' + c.name + '"'
+          + ' onclick="setPreviewColor('' + c.hex + '','' + c.name + '')">'
+          + '</button>';
+      });
+      document.getElementById('previewSwatches').innerHTML = html;
     }
 
     // ── ID auto-generation ──

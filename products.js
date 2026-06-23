@@ -42,11 +42,13 @@ const products = [
   {
     id: "toby",
     name: "Toby",
-    shortDescription: "Toby is unhappy",
-    description: "WHYYYYY!!?!?! <br><br> Printed on a soft Bella+Canvas 3001 tee.",
-    price: 28,
+    shortDescription: "WHYYYY!?!",
+    description: "He has no mouth, and he must scream.
+
+Printed on a soft Bella+Canvas 3001 tee.",
+    price: 18,
     image: "Toby.svg",
-    stripeLink: "https://buy.stripe.com/YOUR_BERNARD_LINK",
-    placement: { size: 23, x: 40, y: 39 },
+    stripeLink: "https://buy.stripe.com/YOUR_LINK",
+    placement: { size: 22, x: 40, y: 38 },
   },
 ];

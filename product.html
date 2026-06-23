@@ -69,11 +69,11 @@
       { name: 'Pink',         hex: '#F2A7BB' },
     ];
 
-    // Preload both images once
-    const personImg = new Image();
-    const shirtImg  = new Image();
-    personImg.src = 'person.png';
-    shirtImg.src  = 'shirt-gray.png';
+    // Preload all three layers
+    const shirtImg = new Image();
+    const armsImg  = new Image();
+    shirtImg.src = 'model_shirt.png';
+    armsImg.src  = 'model_arms.png';
 
     function hexToRgb(hex) {
       return [
@@ -88,15 +88,10 @@
       if (!canvas) return;
       const ctx = canvas.getContext('2d');
 
-      // Size canvas to person image
-      canvas.width  = personImg.naturalWidth;
-      canvas.height = personImg.naturalHeight;
+      canvas.width  = armsImg.naturalWidth;
+      canvas.height = armsImg.naturalHeight;
 
-      // 1. Draw the person (no shirt)
-      ctx.drawImage(personImg, 0, 0);
-
-      // 2. Draw the grayscale shirt recolored
-      // First draw shirt to offscreen canvas to get pixel data
+      // 1. Recolor the shirt layer on an offscreen canvas
       const offscreen = document.createElement('canvas');
       offscreen.width  = shirtImg.naturalWidth;
       offscreen.height = shirtImg.naturalHeight;
@@ -108,18 +103,20 @@
       const [tr, tg, tb] = hexToRgb(hex);
 
       for (let i = 0; i < data.length; i += 4) {
-  	const a = data[i+3];
-  	if (a < 10) continue;
-
-  	const brightness = (data[i] + data[i+1] + data[i+2]) / (255 * 3);
-  	data[i]   = Math.min(255, Math.round(tr * brightness));
-  	data[i+1] = Math.min(255, Math.round(tg * brightness));
-  	data[i+2] = Math.min(255, Math.round(tb * brightness));
+        if (data[i+3] < 10) continue;
+        const brightness = (data[i] + data[i+1] + data[i+2]) / (255 * 3);
+        data[i]   = Math.min(255, Math.round(tr * brightness));
+        data[i+1] = Math.min(255, Math.round(tg * brightness));
+        data[i+2] = Math.min(255, Math.round(tb * brightness));
       }
       offCtx.putImageData(imageData, 0, 0);
 
-      // 3. Draw recolored shirt on top of person
+      // 2. Draw recolored shirt scaled to canvas size
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(offscreen, 0, 0, canvas.width, canvas.height);
+
+      // 3. Draw arms/person on top — transparent shirt area reveals colored shirt below
+      ctx.drawImage(armsImg, 0, 0, canvas.width, canvas.height);
     }
 
     function setShirtColor(hex, name) {
@@ -134,12 +131,14 @@
     let loadedCount = 0;
     function onImageLoad() {
       loadedCount++;
-      if (loadedCount === 2) renderMockup('#FFFFFF');
+      if (loadedCount === 2 && document.getElementById('shirtCanvas')) {
+        renderMockup('#FFFFFF');
+      }
     }
-    personImg.onload = onImageLoad;
-    shirtImg.onload  = onImageLoad;
-    if (personImg.complete) onImageLoad();
-    if (shirtImg.complete)  onImageLoad();
+    shirtImg.onload = onImageLoad;
+    armsImg.onload  = onImageLoad;
+    if (shirtImg.complete) onImageLoad();
+    if (armsImg.complete)  onImageLoad();
 
     // ── Render product ──
     const params = new URLSearchParams(window.location.search);
@@ -193,7 +192,6 @@
           </div>
         </div>`;
 
-      // Trigger render after DOM is ready
       if (loadedCount === 2) renderMockup('#FFFFFF');
 
       // Related products

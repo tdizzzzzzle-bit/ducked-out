@@ -56,6 +56,10 @@
       document.getElementById('mobileMenu').classList.toggle('open');
     }
 
+    // ── Admin mode: add ?admin=quack to any URL to enable ──
+    const params  = new URLSearchParams(window.location.search);
+    const IS_ADMIN = params.get('admin') === 'quack';
+
     const SHIRT_COLORS = [
       { name: 'White',        hex: '#FFFFFF' },
       { name: 'Black',        hex: '#222222' },
@@ -89,11 +93,9 @@
       canvas.width  = armsImg.naturalWidth;
       canvas.height = armsImg.naturalHeight;
 
-      // 1. Arms first (background)
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(armsImg, 0, 0, canvas.width, canvas.height);
 
-      // 2. Recolor shirt on offscreen canvas
       const offscreen = document.createElement('canvas');
       offscreen.width  = shirtImg.naturalWidth;
       offscreen.height = shirtImg.naturalHeight;
@@ -110,23 +112,7 @@
         data[i+2] = Math.min(255, Math.round(tb * brightness));
       }
       offCtx.putImageData(imageData, 0, 0);
-
-      // 3. Shirt on top of arms
       ctx.drawImage(offscreen, 0, 0, canvas.width, canvas.height);
-    }
-
-    function updateDesign() {
-      const design = document.getElementById('shirtDesign');
-      if (!design) return;
-      const size = document.getElementById('sliderSize').value;
-      const x    = document.getElementById('sliderX').value;
-      const y    = document.getElementById('sliderY').value;
-      design.style.width  = size + '%';
-      design.style.left   = x + '%';
-      design.style.top    = y + '%';
-      document.getElementById('labelSize').textContent = size + '%';
-      document.getElementById('labelX').textContent    = x + '%';
-      document.getElementById('labelY').textContent    = y + '%';
     }
 
     function setShirtColor(hex, name) {
@@ -135,6 +121,23 @@
         s.classList.toggle('active', s.dataset.hex === hex);
       });
       renderMockup(hex);
+    }
+
+    function updateDesign() {
+      const design = document.getElementById('shirtDesign');
+      if (!design) return;
+      const size = document.getElementById('sliderSize').value;
+      const x    = document.getElementById('sliderX').value;
+      const y    = document.getElementById('sliderY').value;
+      design.style.width = size + '%';
+      design.style.left  = x + '%';
+      design.style.top   = y + '%';
+      document.getElementById('labelSize').textContent = size + '%';
+      document.getElementById('labelX').textContent    = x + '%';
+      document.getElementById('labelY').textContent    = y + '%';
+      // Show the values to copy into products.js
+      document.getElementById('adminOutput').textContent =
+        `placement: { size: ${size}, x: ${x}, y: ${y} }`;
     }
 
     let loadedCount = 0;
@@ -149,15 +152,15 @@
     if (shirtImg.complete) onImageLoad();
     if (armsImg.complete)  onImageLoad();
 
-    const params = new URLSearchParams(window.location.search);
-    const id = params.get('id');
+    const id      = params.get('id');
     const product = products.find(p => p.id === id);
-    const page = document.getElementById('productPage');
+    const page    = document.getElementById('productPage');
 
     if (!product) {
       page.innerHTML = '<p>Product not found. <a href="shop.html">Back to shop</a></p>';
     } else {
       document.title = `${product.name} — Duck & Cover`;
+      const pl = product.placement;
 
       const swatchHTML = SHIRT_COLORS.map(c => `
         <button
@@ -168,36 +171,42 @@
           onclick="setShirtColor('${c.hex}','${c.name}')">
         </button>`).join('');
 
+      // Admin controls HTML — only injected if IS_ADMIN
+      const adminHTML = IS_ADMIN ? `
+        <div class="admin-panel">
+          <div class="admin-title">🛠 Admin — Design Controls</div>
+          <div class="admin-row">
+            <label>Size: <strong id="labelSize">${pl.size}%</strong></label>
+            <input id="sliderSize" type="range" min="1" max="100" value="${pl.size}" oninput="updateDesign()" />
+          </div>
+          <div class="admin-row">
+            <label>X: <strong id="labelX">${pl.x}%</strong></label>
+            <input id="sliderX" type="range" min="0" max="90" value="${pl.x}" oninput="updateDesign()" />
+          </div>
+          <div class="admin-row">
+            <label>Y: <strong id="labelY">${pl.y}%</strong></label>
+            <input id="sliderY" type="range" min="0" max="90" value="${pl.y}" oninput="updateDesign()" />
+          </div>
+          <div class="admin-output" id="adminOutput">placement: { size: ${pl.size}, x: ${pl.x}, y: ${pl.y} }</div>
+          <div class="admin-hint">Copy the line above into products.js when done</div>
+        </div>` : '';
+
       page.innerHTML = `
         <div class="breadcrumb">
-          <a href="index.html">Home</a> / <a href="shop.html">Shop</a> / <span>${product.name}</span>
+          <a href="index.html">Home</a> /
+          <a href="shop.html">Shop</a> /
+          <span>${product.name}</span>
         </div>
         <div class="product-detail">
           <div class="product-detail-img">
             <div class="shirt-mockup">
               <canvas id="shirtCanvas" class="shirt-canvas"></canvas>
-              <img id="shirtDesign" src="${product.image}" alt="${product.name}" class="shirt-design" />
+              <img id="shirtDesign" src="${product.image}" alt="${product.name}"
+                class="shirt-design"
+                style="width:${pl.size}%; left:${pl.x}%; top:${pl.y}%;" />
             </div>
-
-            <!-- ── Dev controls ── -->
-            <div class="dev-slider">
-              <div class="dev-title">🦆 Design Controls</div>
-              <div class="dev-row">
-                <label>Size: <strong id="labelSize">50%</strong></label>
-                <input id="sliderSize" type="range" min="10" max="100" value="50" oninput="updateDesign()" />
-              </div>
-              <div class="dev-row">
-                <label>X: <strong id="labelX">25%</strong></label>
-                <input id="sliderX" type="range" min="0" max="80" value="25" oninput="updateDesign()" />
-              </div>
-              <div class="dev-row">
-                <label>Y: <strong id="labelY">18%</strong></label>
-                <input id="sliderY" type="range" min="0" max="80" value="18" oninput="updateDesign()" />
-              </div>
-              <div class="dev-hint">Set these values in style.css → .shirt-design when done</div>
-            </div>
+            ${adminHTML}
           </div>
-
           <div class="product-detail-info">
             <h1>${product.name}</h1>
             <div class="product-price">$${product.price}</div>

@@ -39,4 +39,14 @@ const products = [
     stripeLink: "https://buy.stripe.com/YOUR_BARTHOLOMEW_LINK",
     placement: { size: 27, x: 37, y: 40 },
   },
+  {
+    id: "toby",
+    name: "Toby",
+    shortDescription: "Toby is unhappy",
+    description: "WHYYYYY!!?!?! <br><br> Printed on a soft Bella+Canvas 3001 tee.",
+    price: 28,
+    image: "Toby.svg",
+    stripeLink: "https://buy.stripe.com/YOUR_BERNARD_LINK",
+    placement: { size: 23, x: 40, y: 39 },
+  },
 ];

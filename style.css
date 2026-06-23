@@ -656,3 +656,25 @@ footer {
   color: rgba(255,255,255,0.5);
   font-style: italic;
 }
+
+/* ── Admin Export Button ── */
+.admin-export {
+  display: block;
+  width: 100%;
+  margin-top: 0.85rem;
+  background: var(--yellow);
+  color: var(--pond);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.95rem;
+  padding: 0.65rem 1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  text-align: center;
+}
+.admin-export:hover {
+  background: var(--yellow-dark);
+  transform: translateY(-1px);
+}

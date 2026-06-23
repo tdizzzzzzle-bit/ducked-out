@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="style.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
 <body>
 
@@ -56,8 +57,8 @@
       document.getElementById('mobileMenu').classList.toggle('open');
     }
 
-    // ── Admin mode: add ?admin=quack to any URL to enable ──
-    const params  = new URLSearchParams(window.location.search);
+    // ── Admin mode: ?admin=quack ──
+    const params   = new URLSearchParams(window.location.search);
     const IS_ADMIN = params.get('admin') === 'quack';
 
     const SHIRT_COLORS = [
@@ -92,7 +93,6 @@
       const ctx = canvas.getContext('2d');
       canvas.width  = armsImg.naturalWidth;
       canvas.height = armsImg.naturalHeight;
-
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(armsImg, 0, 0, canvas.width, canvas.height);
 
@@ -135,9 +135,66 @@
       document.getElementById('labelSize').textContent = size + '%';
       document.getElementById('labelX').textContent    = x + '%';
       document.getElementById('labelY').textContent    = y + '%';
-      // Show the values to copy into products.js
       document.getElementById('adminOutput').textContent =
         `placement: { size: ${size}, x: ${x}, y: ${y} }`;
+    }
+
+    // ── Serialize products array to products.js string ──
+    function serializeProducts(productsArr) {
+      const lines = productsArr.map(p => {
+        // Safely escape backtick-unsafe chars in strings
+        const escape = str => String(str)
+          .replace(/\\/g, '\\\\')
+          .replace(/`/g, '\\`')
+          .replace(/\$\{/g, '\\${');
+
+        return `  {
+    id: \`${escape(p.id)}\`,
+    name: \`${escape(p.name)}\`,
+    shortDescription: \`${escape(p.shortDescription)}\`,
+    description: \`${escape(p.description)}\`,
+    price: ${p.price},
+    image: \`${escape(p.image)}\`,
+    stripeLink: \`${escape(p.stripeLink)}\`,
+    placement: { size: ${p.placement.size}, x: ${p.placement.x}, y: ${p.placement.y} },
+  }`;
+      });
+      return `const products = [\n${lines.join(',\n')},\n];\n`;
+    }
+
+    async function exportUpdate(productId) {
+      // Pull current slider values and apply to in-memory products
+      const size = parseInt(document.getElementById('sliderSize').value);
+      const x    = parseInt(document.getElementById('sliderX').value);
+      const y    = parseInt(document.getElementById('sliderY').value);
+
+      const updatedProducts = products.map(p =>
+        p.id === productId
+          ? { ...p, placement: { size, x, y } }
+          : p
+      );
+
+      const productsJs = serializeProducts(updatedProducts);
+
+      const zip = new JSZip();
+      zip.file('products.js', productsJs);
+
+      const blob = await zip.generateAsync({ type: 'blob' });
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href     = url;
+      a.download = `duck-update-${productId}.zip`;
+      a.click();
+      URL.revokeObjectURL(url);
+
+      // Flash confirmation
+      const btn = document.getElementById('exportBtn');
+      btn.textContent = '✓ Downloaded!';
+      btn.style.background = '#2D5A27';
+      setTimeout(() => {
+        btn.textContent = '⬇ Export Update';
+        btn.style.background = '';
+      }, 2000);
     }
 
     let loadedCount = 0;
@@ -171,10 +228,9 @@
           onclick="setShirtColor('${c.hex}','${c.name}')">
         </button>`).join('');
 
-      // Admin controls HTML — only injected if IS_ADMIN
       const adminHTML = IS_ADMIN ? `
         <div class="admin-panel">
-          <div class="admin-title">🛠 Admin — Design Controls</div>
+          <div class="admin-title">🛠 Admin — ${product.name}</div>
           <div class="admin-row">
             <label>Size: <strong id="labelSize">${pl.size}%</strong></label>
             <input id="sliderSize" type="range" min="1" max="100" value="${pl.size}" oninput="updateDesign()" />
@@ -188,7 +244,10 @@
             <input id="sliderY" type="range" min="0" max="90" value="${pl.y}" oninput="updateDesign()" />
           </div>
           <div class="admin-output" id="adminOutput">placement: { size: ${pl.size}, x: ${pl.x}, y: ${pl.y} }</div>
-          <div class="admin-hint">Copy the line above into products.js when done</div>
+          <button id="exportBtn" class="admin-export" onclick="exportUpdate('${product.id}')">
+            ⬇ Export Update
+          </button>
+          <div class="admin-hint">Downloads a zip with updated products.js — drop it in your project folder and push.</div>
         </div>` : '';
 
       page.innerHTML = `

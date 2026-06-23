@@ -34,7 +34,7 @@ const products = [
     name: "Bartholomew",
     shortDescription: "Please be nice to him.",
     description: "Don't be mean to him. He's sensitive.<br><br> Printed on a soft Bella+Canvas 3001 tee.",
-    price: 28,
+    price: 18,
     image: "Bartholomew.svg",
     stripeLink: "https://buy.stripe.com/YOUR_BARTHOLOMEW_LINK",
     placement: { size: 27, x: 37, y: 40 },

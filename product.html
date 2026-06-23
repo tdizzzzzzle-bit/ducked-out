@@ -198,16 +198,17 @@
     }
 
     let loadedCount = 0;
-    function onImageLoad() {
-      loadedCount++;
-      if (loadedCount === 2 && document.getElementById('shirtCanvas')) {
+
+    function tryRender() {
+      if (loadedCount >= 2 && document.getElementById('shirtCanvas')) {
         renderMockup('#FFFFFF');
       }
     }
-    shirtImg.onload = onImageLoad;
-    armsImg.onload  = onImageLoad;
-    if (shirtImg.complete) onImageLoad();
-    if (armsImg.complete)  onImageLoad();
+
+    shirtImg.onload = () => { loadedCount++; tryRender(); };
+    armsImg.onload  = () => { loadedCount++; tryRender(); };
+    if (shirtImg.complete) loadedCount++;
+    if (armsImg.complete)  loadedCount++;
 
     const id      = params.get('id');
     const product = products.find(p => p.id === id);
@@ -287,7 +288,7 @@
           </div>
         </div>`;
 
-      if (loadedCount === 2) renderMockup('#FFFFFF');
+      tryRender();
 
       const related = products.filter(p => p.id !== product.id).slice(0, 3);
       const relGrid = document.getElementById('relatedGrid');

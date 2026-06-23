@@ -69,7 +69,6 @@
       { name: 'Pink',         hex: '#F2A7BB' },
     ];
 
-    // Preload all three layers
     const shirtImg = new Image();
     const armsImg  = new Image();
     shirtImg.src = 'model_shirt.png';
@@ -91,7 +90,11 @@
       canvas.width  = armsImg.naturalWidth;
       canvas.height = armsImg.naturalHeight;
 
-      // 1. Recolor the shirt layer on an offscreen canvas
+      // 1. Draw arms/person FIRST (background layer)
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(armsImg, 0, 0, canvas.width, canvas.height);
+
+      // 2. Recolor the shirt on offscreen canvas
       const offscreen = document.createElement('canvas');
       offscreen.width  = shirtImg.naturalWidth;
       offscreen.height = shirtImg.naturalHeight;
@@ -111,12 +114,8 @@
       }
       offCtx.putImageData(imageData, 0, 0);
 
-      // 2. Draw recolored shirt scaled to canvas size
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      // 3. Draw recolored shirt ON TOP of arms
       ctx.drawImage(offscreen, 0, 0, canvas.width, canvas.height);
-
-      // 3. Draw arms/person on top — transparent shirt area reveals colored shirt below
-      ctx.drawImage(armsImg, 0, 0, canvas.width, canvas.height);
     }
 
     function setShirtColor(hex, name) {
@@ -127,7 +126,14 @@
       renderMockup(hex);
     }
 
-    // Wait for both images before first render
+    function setDesignSize(val) {
+      const design = document.getElementById('shirtDesign');
+      if (design) {
+        design.style.width = val + '%';
+        document.getElementById('sizeLabel').textContent = val + '%';
+      }
+    }
+
     let loadedCount = 0;
     function onImageLoad() {
       loadedCount++;
@@ -168,9 +174,17 @@
           <div class="product-detail-img">
             <div class="shirt-mockup">
               <canvas id="shirtCanvas" class="shirt-canvas"></canvas>
-              <img src="${product.image}" alt="${product.name}" class="shirt-design" />
+              <img id="shirtDesign" src="${product.image}" alt="${product.name}" class="shirt-design" />
+            </div>
+
+            <!-- ── Dev sizing slider ── -->
+            <div class="dev-slider">
+              <label>🦆 Design Size: <strong id="sizeLabel">50%</strong></label>
+              <input type="range" min="10" max="100" value="50"
+                oninput="setDesignSize(this.value)" />
             </div>
           </div>
+
           <div class="product-detail-info">
             <h1>${product.name}</h1>
             <div class="product-price">$${product.price}</div>

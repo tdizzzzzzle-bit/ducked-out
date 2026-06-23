@@ -576,3 +576,36 @@ footer {
   margin-top: 0.4rem;
   accent-color: var(--pond);
 }
+
+/* ── Dev Controls ── */
+.dev-slider {
+  margin-top: 1rem;
+  background: #fffbe6;
+  border: 2px dashed var(--yellow-dark);
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  color: var(--pond);
+}
+.dev-title {
+  font-weight: 700;
+  margin-bottom: 0.6rem;
+}
+.dev-row {
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+}
+.dev-row input[type=range] {
+  width: 100%;
+  accent-color: var(--pond);
+}
+.dev-hint {
+  margin-top: 0.6rem;
+  font-size: 0.72rem;
+  color: var(--text-light);
+  font-style: italic;
+}

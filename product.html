@@ -86,25 +86,22 @@
       const canvas = document.getElementById('shirtCanvas');
       if (!canvas) return;
       const ctx = canvas.getContext('2d');
-
       canvas.width  = armsImg.naturalWidth;
       canvas.height = armsImg.naturalHeight;
 
-      // 1. Draw arms/person FIRST (background layer)
+      // 1. Arms first (background)
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(armsImg, 0, 0, canvas.width, canvas.height);
 
-      // 2. Recolor the shirt on offscreen canvas
+      // 2. Recolor shirt on offscreen canvas
       const offscreen = document.createElement('canvas');
       offscreen.width  = shirtImg.naturalWidth;
       offscreen.height = shirtImg.naturalHeight;
       const offCtx = offscreen.getContext('2d');
       offCtx.drawImage(shirtImg, 0, 0);
-
       const imageData = offCtx.getImageData(0, 0, offscreen.width, offscreen.height);
       const data = imageData.data;
       const [tr, tg, tb] = hexToRgb(hex);
-
       for (let i = 0; i < data.length; i += 4) {
         if (data[i+3] < 10) continue;
         const brightness = (data[i] + data[i+1] + data[i+2]) / (255 * 3);
@@ -114,8 +111,22 @@
       }
       offCtx.putImageData(imageData, 0, 0);
 
-      // 3. Draw recolored shirt ON TOP of arms
+      // 3. Shirt on top of arms
       ctx.drawImage(offscreen, 0, 0, canvas.width, canvas.height);
+    }
+
+    function updateDesign() {
+      const design = document.getElementById('shirtDesign');
+      if (!design) return;
+      const size = document.getElementById('sliderSize').value;
+      const x    = document.getElementById('sliderX').value;
+      const y    = document.getElementById('sliderY').value;
+      design.style.width  = size + '%';
+      design.style.left   = x + '%';
+      design.style.top    = y + '%';
+      document.getElementById('labelSize').textContent = size + '%';
+      document.getElementById('labelX').textContent    = x + '%';
+      document.getElementById('labelY').textContent    = y + '%';
     }
 
     function setShirtColor(hex, name) {
@@ -124,14 +135,6 @@
         s.classList.toggle('active', s.dataset.hex === hex);
       });
       renderMockup(hex);
-    }
-
-    function setDesignSize(val) {
-      const design = document.getElementById('shirtDesign');
-      if (design) {
-        design.style.width = val + '%';
-        document.getElementById('sizeLabel').textContent = val + '%';
-      }
     }
 
     let loadedCount = 0;
@@ -146,7 +149,6 @@
     if (shirtImg.complete) onImageLoad();
     if (armsImg.complete)  onImageLoad();
 
-    // ── Render product ──
     const params = new URLSearchParams(window.location.search);
     const id = params.get('id');
     const product = products.find(p => p.id === id);
@@ -177,11 +179,22 @@
               <img id="shirtDesign" src="${product.image}" alt="${product.name}" class="shirt-design" />
             </div>
 
-            <!-- ── Dev sizing slider ── -->
+            <!-- ── Dev controls ── -->
             <div class="dev-slider">
-              <label>🦆 Design Size: <strong id="sizeLabel">50%</strong></label>
-              <input type="range" min="10" max="100" value="50"
-                oninput="setDesignSize(this.value)" />
+              <div class="dev-title">🦆 Design Controls</div>
+              <div class="dev-row">
+                <label>Size: <strong id="labelSize">50%</strong></label>
+                <input id="sliderSize" type="range" min="10" max="100" value="50" oninput="updateDesign()" />
+              </div>
+              <div class="dev-row">
+                <label>X: <strong id="labelX">25%</strong></label>
+                <input id="sliderX" type="range" min="0" max="80" value="25" oninput="updateDesign()" />
+              </div>
+              <div class="dev-row">
+                <label>Y: <strong id="labelY">18%</strong></label>
+                <input id="sliderY" type="range" min="0" max="80" value="18" oninput="updateDesign()" />
+              </div>
+              <div class="dev-hint">Set these values in style.css → .shirt-design when done</div>
             </div>
           </div>
 
@@ -208,7 +221,6 @@
 
       if (loadedCount === 2) renderMockup('#FFFFFF');
 
-      // Related products
       const related = products.filter(p => p.id !== product.id).slice(0, 3);
       const relGrid = document.getElementById('relatedGrid');
       related.forEach(p => {

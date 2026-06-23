@@ -53,13 +53,15 @@
   <script src="products.js"></script>
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
+
     function toggleNav() {
       document.getElementById('mobileMenu').classList.toggle('open');
     }
 
-    // ── Admin mode: ?admin=quack ──
-    const params   = new URLSearchParams(window.location.search);
-    const IS_ADMIN = params.get('admin') === 'quack';
+    // ── Admin mode: add ?admin=quack to URL ──
+    const urlParams = new URLSearchParams(window.location.search);
+    const IS_ADMIN  = urlParams.get('admin') === 'quack';
+    const productId = urlParams.get('id');
 
     const SHIRT_COLORS = [
       { name: 'White',        hex: '#FFFFFF' },
@@ -74,45 +76,49 @@
       { name: 'Pink',         hex: '#F2A7BB' },
     ];
 
+    // ── Image layers ──
     const shirtImg = new Image();
     const armsImg  = new Image();
-    shirtImg.src = 'model_shirt.png';
-    armsImg.src  = 'model_arms.png';
+    shirtImg.src   = 'model_shirt.png';
+    armsImg.src    = 'model_arms.png';
 
     function hexToRgb(hex) {
       return [
         parseInt(hex.slice(1,3), 16),
         parseInt(hex.slice(3,5), 16),
-        parseInt(hex.slice(5,7), 16)
+        parseInt(hex.slice(5,7), 16),
       ];
     }
 
     function renderMockup(hex) {
       const canvas = document.getElementById('shirtCanvas');
-      if (!canvas) return;
+      if (!canvas || !armsImg.naturalWidth) return;
       const ctx = canvas.getContext('2d');
       canvas.width  = armsImg.naturalWidth;
       canvas.height = armsImg.naturalHeight;
+
+      // Layer 1: arms
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(armsImg, 0, 0, canvas.width, canvas.height);
 
-      const offscreen = document.createElement('canvas');
-      offscreen.width  = shirtImg.naturalWidth;
-      offscreen.height = shirtImg.naturalHeight;
-      const offCtx = offscreen.getContext('2d');
+      // Layer 2: recolored shirt
+      const off    = document.createElement('canvas');
+      off.width    = shirtImg.naturalWidth;
+      off.height   = shirtImg.naturalHeight;
+      const offCtx = off.getContext('2d');
       offCtx.drawImage(shirtImg, 0, 0);
-      const imageData = offCtx.getImageData(0, 0, offscreen.width, offscreen.height);
-      const data = imageData.data;
+      const imgData = offCtx.getImageData(0, 0, off.width, off.height);
+      const d = imgData.data;
       const [tr, tg, tb] = hexToRgb(hex);
-      for (let i = 0; i < data.length; i += 4) {
-        if (data[i+3] < 10) continue;
-        const brightness = (data[i] + data[i+1] + data[i+2]) / (255 * 3);
-        data[i]   = Math.min(255, Math.round(tr * brightness));
-        data[i+1] = Math.min(255, Math.round(tg * brightness));
-        data[i+2] = Math.min(255, Math.round(tb * brightness));
+      for (let i = 0; i < d.length; i += 4) {
+        if (d[i+3] < 10) continue;
+        const b = (d[i] + d[i+1] + d[i+2]) / (255 * 3);
+        d[i]   = Math.min(255, Math.round(tr * b));
+        d[i+1] = Math.min(255, Math.round(tg * b));
+        d[i+2] = Math.min(255, Math.round(tb * b));
       }
-      offCtx.putImageData(imageData, 0, 0);
-      ctx.drawImage(offscreen, 0, 0, canvas.width, canvas.height);
+      offCtx.putImageData(imgData, 0, 0);
+      ctx.drawImage(off, 0, 0, canvas.width, canvas.height);
     }
 
     function setShirtColor(hex, name) {
@@ -123,6 +129,7 @@
       renderMockup(hex);
     }
 
+    // ── Admin controls ──
     function updateDesign() {
       const design = document.getElementById('shirtDesign');
       if (!design) return;
@@ -136,174 +143,151 @@
       document.getElementById('labelX').textContent    = x + '%';
       document.getElementById('labelY').textContent    = y + '%';
       document.getElementById('adminOutput').textContent =
-        `placement: { size: ${size}, x: ${x}, y: ${y} }`;
+        'placement: { size: ' + size + ', x: ' + x + ', y: ' + y + ' }';
     }
 
-    // ── Serialize products array to products.js string ──
-    function serializeProducts(productsArr) {
-      const lines = productsArr.map(p => {
-        // Safely escape backtick-unsafe chars in strings
-        const escape = str => String(str)
-          .replace(/\\/g, '\\\\')
-          .replace(/`/g, '\\`')
-          .replace(/\$\{/g, '\\${');
-
-        return `  {
-    id: \`${escape(p.id)}\`,
-    name: \`${escape(p.name)}\`,
-    shortDescription: \`${escape(p.shortDescription)}\`,
-    description: \`${escape(p.description)}\`,
-    price: ${p.price},
-    image: \`${escape(p.image)}\`,
-    stripeLink: \`${escape(p.stripeLink)}\`,
-    placement: { size: ${p.placement.size}, x: ${p.placement.x}, y: ${p.placement.y} },
-  }`;
+    function serializeProducts(arr) {
+      const rows = arr.map(function(p) {
+        return '  {\n'
+          + '    id: "' + p.id + '",\n'
+          + '    name: "' + p.name + '",\n'
+          + '    shortDescription: "' + p.shortDescription.replace(/"/g, '\\"') + '",\n'
+          + '    description: "' + p.description.replace(/"/g, '\\"') + '",\n'
+          + '    price: ' + p.price + ',\n'
+          + '    image: "' + p.image + '",\n'
+          + '    stripeLink: "' + p.stripeLink + '",\n'
+          + '    placement: { size: ' + p.placement.size + ', x: ' + p.placement.x + ', y: ' + p.placement.y + ' },\n'
+          + '  }';
       });
-      return `const products = [\n${lines.join(',\n')},\n];\n`;
+      return 'const products = [\n' + rows.join(',\n') + ',\n];\n';
     }
 
-    async function exportUpdate(productId) {
-      // Pull current slider values and apply to in-memory products
+    async function exportUpdate(pid) {
       const size = parseInt(document.getElementById('sliderSize').value);
       const x    = parseInt(document.getElementById('sliderX').value);
       const y    = parseInt(document.getElementById('sliderY').value);
-
-      const updatedProducts = products.map(p =>
-        p.id === productId
-          ? { ...p, placement: { size, x, y } }
-          : p
-      );
-
-      const productsJs = serializeProducts(updatedProducts);
-
-      const zip = new JSZip();
-      zip.file('products.js', productsJs);
-
+      const updated = products.map(function(p) {
+        return p.id === pid ? Object.assign({}, p, { placement: { size: size, x: x, y: y } }) : p;
+      });
+      const zip  = new JSZip();
+      zip.file('products.js', serializeProducts(updated));
       const blob = await zip.generateAsync({ type: 'blob' });
       const url  = URL.createObjectURL(blob);
       const a    = document.createElement('a');
       a.href     = url;
-      a.download = `duck-update-${productId}.zip`;
+      a.download = 'duck-update-' + pid + '.zip';
       a.click();
       URL.revokeObjectURL(url);
-
-      // Flash confirmation
       const btn = document.getElementById('exportBtn');
       btn.textContent = '✓ Downloaded!';
       btn.style.background = '#2D5A27';
-      setTimeout(() => {
+      btn.style.color = 'white';
+      setTimeout(function() {
         btn.textContent = '⬇ Export Update';
         btn.style.background = '';
+        btn.style.color = '';
       }, 2000);
     }
 
-    let loadedCount = 0;
+    // ── Image load handling ──
+    var imagesReady = 0;
+    function imageLoaded() {
+      imagesReady++;
+      if (imagesReady >= 2) renderMockup('#FFFFFF');
+    }
+    shirtImg.addEventListener('load', imageLoaded);
+    armsImg.addEventListener('load', imageLoaded);
+    if (shirtImg.complete) imageLoaded();
+    if (armsImg.complete)  imageLoaded();
 
-    function tryRender() {
-      if (loadedCount >= 2 && document.getElementById('shirtCanvas')) {
-        renderMockup('#FFFFFF');
-      }
+    // ── Find product ──
+    var product = null;
+    for (var i = 0; i < products.length; i++) {
+      if (products[i].id === productId) { product = products[i]; break; }
     }
 
-    shirtImg.onload = () => { loadedCount++; tryRender(); };
-    armsImg.onload  = () => { loadedCount++; tryRender(); };
-    if (shirtImg.complete) loadedCount++;
-    if (armsImg.complete)  loadedCount++;
-
-    const id      = params.get('id');
-    const product = products.find(p => p.id === id);
-    const page    = document.getElementById('productPage');
+    var page = document.getElementById('productPage');
 
     if (!product) {
       page.innerHTML = '<p>Product not found. <a href="shop.html">Back to shop</a></p>';
     } else {
-      document.title = `${product.name} — Duck & Cover`;
-      const pl = product.placement;
+      document.title = product.name + ' — Duck & Cover';
 
-      const swatchHTML = SHIRT_COLORS.map(c => `
-        <button
-          class="color-swatch${c.hex === '#FFFFFF' ? ' active' : ''}"
-          style="background:${c.hex};${c.hex==='#FFFFFF' ? 'border-color:#C0B8A8;' : ''}"
-          data-hex="${c.hex}"
-          title="${c.name}"
-          onclick="setShirtColor('${c.hex}','${c.name}')">
-        </button>`).join('');
+      // Safe placement with fallback
+      var pl = (product.placement && typeof product.placement.size !== 'undefined')
+        ? product.placement
+        : { size: 40, x: 30, y: 35 };
 
-      const adminHTML = IS_ADMIN ? `
-        <div class="admin-panel">
-          <div class="admin-title">🛠 Admin — ${product.name}</div>
-          <div class="admin-row">
-            <label>Size: <strong id="labelSize">${pl.size}%</strong></label>
-            <input id="sliderSize" type="range" min="1" max="100" value="${pl.size}" oninput="updateDesign()" />
-          </div>
-          <div class="admin-row">
-            <label>X: <strong id="labelX">${pl.x}%</strong></label>
-            <input id="sliderX" type="range" min="0" max="90" value="${pl.x}" oninput="updateDesign()" />
-          </div>
-          <div class="admin-row">
-            <label>Y: <strong id="labelY">${pl.y}%</strong></label>
-            <input id="sliderY" type="range" min="0" max="90" value="${pl.y}" oninput="updateDesign()" />
-          </div>
-          <div class="admin-output" id="adminOutput">placement: { size: ${pl.size}, x: ${pl.x}, y: ${pl.y} }</div>
-          <button id="exportBtn" class="admin-export" onclick="exportUpdate('${product.id}')">
-            ⬇ Export Update
-          </button>
-          <div class="admin-hint">Downloads a zip with updated products.js — drop it in your project folder and push.</div>
-        </div>` : '';
+      var swatchHTML = '';
+      SHIRT_COLORS.forEach(function(c) {
+        swatchHTML += '<button'
+          + ' class="color-swatch' + (c.hex === '#FFFFFF' ? ' active' : '') + '"'
+          + ' style="background:' + c.hex + ';' + (c.hex === '#FFFFFF' ? 'border-color:#C0B8A8;' : '') + '"'
+          + ' data-hex="' + c.hex + '"'
+          + ' title="' + c.name + '"'
+          + ' onclick="setShirtColor(\'' + c.hex + '\',\'' + c.name + '\')">'
+          + '</button>';
+      });
 
-      page.innerHTML = `
-        <div class="breadcrumb">
-          <a href="index.html">Home</a> /
-          <a href="shop.html">Shop</a> /
-          <span>${product.name}</span>
-        </div>
-        <div class="product-detail">
-          <div class="product-detail-img">
-            <div class="shirt-mockup">
-              <canvas id="shirtCanvas" class="shirt-canvas"></canvas>
-              <img id="shirtDesign" src="${product.image}" alt="${product.name}"
-                class="shirt-design"
-                style="width:${pl.size}%; left:${pl.x}%; top:${pl.y}%;" />
-            </div>
-            ${adminHTML}
-          </div>
-          <div class="product-detail-info">
-            <h1>${product.name}</h1>
-            <div class="product-price">$${product.price}</div>
-            <p class="product-description">${product.description}</p>
-            <div class="color-picker-section">
-              <div class="color-picker-label">
-                Shirt Color — <span id="colorLabel">White</span>
-              </div>
-              <div class="color-swatches">${swatchHTML}</div>
-            </div>
-            <div class="product-details-box">
-              <div class="detail-row">→ Hand-drawn original design</div>
-              <div class="detail-row">→ DTF transfer, pressed in-house</div>
-              <div class="detail-row">→ Bella+Canvas 3001 tee</div>
-              <div class="detail-row">→ Sizes: S, M, L, XL, 2XL</div>
-            </div>
-            <a href="${product.stripeLink}" class="btn btn-buy">Buy Now →</a>
-            <p class="buy-note">You'll be taken to Stripe's secure checkout.</p>
-          </div>
-        </div>`;
+      var adminHTML = '';
+      if (IS_ADMIN) {
+        adminHTML = '<div class="admin-panel">'
+          + '<div class="admin-title">🛠 Admin — ' + product.name + '</div>'
+          + '<div class="admin-row"><label>Size: <strong id="labelSize">' + pl.size + '%</strong></label>'
+          + '<input id="sliderSize" type="range" min="1" max="100" value="' + pl.size + '" oninput="updateDesign()" /></div>'
+          + '<div class="admin-row"><label>X: <strong id="labelX">' + pl.x + '%</strong></label>'
+          + '<input id="sliderX" type="range" min="0" max="90" value="' + pl.x + '" oninput="updateDesign()" /></div>'
+          + '<div class="admin-row"><label>Y: <strong id="labelY">' + pl.y + '%</strong></label>'
+          + '<input id="sliderY" type="range" min="0" max="90" value="' + pl.y + '" oninput="updateDesign()" /></div>'
+          + '<div class="admin-output" id="adminOutput">placement: { size: ' + pl.size + ', x: ' + pl.x + ', y: ' + pl.y + ' }</div>'
+          + '<button id="exportBtn" class="admin-export" onclick="exportUpdate(\'' + product.id + '\')">⬇ Export Update</button>'
+          + '<div class="admin-hint">Downloads updated products.js — drop it in your project and push.</div>'
+          + '</div>';
+      }
 
-      tryRender();
+      page.innerHTML = ''
+        + '<div class="breadcrumb">'
+        + '<a href="index.html">Home</a> / <a href="shop.html">Shop</a> / <span>' + product.name + '</span>'
+        + '</div>'
+        + '<div class="product-detail">'
+        + '<div class="product-detail-img">'
+        + '<div class="shirt-mockup">'
+        + '<canvas id="shirtCanvas" class="shirt-canvas"></canvas>'
+        + '<img id="shirtDesign" src="' + product.image + '" alt="' + product.name + '" class="shirt-design"'
+        + ' style="width:' + pl.size + '%; left:' + pl.x + '%; top:' + pl.y + '%;" />'
+        + '</div>'
+        + adminHTML
+        + '</div>'
+        + '<div class="product-detail-info">'
+        + '<h1>' + product.name + '</h1>'
+        + '<div class="product-price">$' + product.price + '</div>'
+        + '<p class="product-description">' + product.description + '</p>'
+        + '<div class="color-picker-section">'
+        + '<div class="color-picker-label">Shirt Color — <span id="colorLabel">White</span></div>'
+        + '<div class="color-swatches">' + swatchHTML + '</div>'
+        + '</div>'
+        + '<div class="product-details-box">'
+        + '<div class="detail-row">→ Hand-drawn original design</div>'
+        + '<div class="detail-row">→ DTF transfer, pressed in-house</div>'
+        + '<div class="detail-row">→ Bella+Canvas 3001 tee</div>'
+        + '<div class="detail-row">→ Sizes: S, M, L, XL, 2XL</div>'
+        + '</div>'
+        + '<a href="' + product.stripeLink + '" class="btn btn-buy">Buy Now →</a>'
+        + '<p class="buy-note">You\'ll be taken to Stripe\'s secure checkout.</p>'
+        + '</div>'
+        + '</div>';
 
-      const related = products.filter(p => p.id !== product.id).slice(0, 3);
-      const relGrid = document.getElementById('relatedGrid');
-      related.forEach(p => {
-        relGrid.innerHTML += `
-          <a href="product.html?id=${p.id}" class="product-card">
-            <div class="card-img">
-              <img src="${p.image}" alt="${p.name}" />
-            </div>
-            <div class="card-info">
-              <h3>${p.name}</h3>
-              <p>${p.shortDescription}</p>
-              <span class="price">$${p.price}</span>
-            </div>
-          </a>`;
+      // Render mockup now that canvas exists
+      if (imagesReady >= 2) renderMockup('#FFFFFF');
+
+      // Related products
+      var relGrid = document.getElementById('relatedGrid');
+      products.forEach(function(p) {
+        if (p.id === product.id) return;
+        relGrid.innerHTML += '<a href="product.html?id=' + p.id + '" class="product-card">'
+          + '<div class="card-img"><img src="' + p.image + '" alt="' + p.name + '" /></div>'
+          + '<div class="card-info"><h3>' + p.name + '</h3><p>' + p.shortDescription + '</p>'
+          + '<span class="price">$' + p.price + '</span></div></a>';
       });
     }
   </script>

@@ -49,7 +49,6 @@
       <p class="eyebrow">Hand-Drawn Originals</p>
       <h2>The Flock</h2>
       <div class="product-grid" id="featuredGrid"></div>
-      <a href="shop.html" class="btn btn-outline">See All Designs →</a>
     </div>
   </section>
 
@@ -101,7 +100,7 @@
     }
     // Render 3 featured products
     const grid = document.getElementById('featuredGrid');
-    const featured = products.slice(0, 3);
+    const featured = products;
     featured.forEach(p => {
       grid.innerHTML += `
         <a href="product.html?id=${p.id}" class="product-card">

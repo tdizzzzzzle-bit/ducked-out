@@ -213,28 +213,29 @@
       applyBtn.textContent = '⏳ Updating...';
       applyBtn.disabled = true;
 
-      var updates = [];
-      loadedProducts.forEach(function(product) {
-        product.variants.forEach(function(v) {
-          updates.push({
-            variantId:  v.id,
-            retailPrice: getNewPrice(v.size).toFixed(2),
-          });
-        });
+      // Build product-level updates (one API call per product)
+      var products = loadedProducts.map(function(product) {
+        return {
+          id: product.id,
+          variants: product.variants.map(function(v) {
+            return { id: v.id, retailPrice: getNewPrice(v.size).toFixed(2) };
+          }),
+        };
       });
 
-      log('Sending ' + updates.length + ' price updates to Printful...', '#F5C842');
+      var totalVariants = products.reduce(function(a, p) { return a + p.variants.length; }, 0);
+      log('Sending ' + products.length + ' product updates (' + totalVariants + ' variants) to Printful...', '#F5C842');
 
       try {
         var res = await fetch(WORKER_URL + '/update-prices', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ updates: updates }),
+          body: JSON.stringify({ products: products }),
         });
         var data = await res.json();
 
         if (data.success) {
-          log('✅ Updated ' + data.updated + ' variants successfully!', '#39E600');
+          log('✅ Updated ' + data.updated + ' variants across ' + products.length + ' products!', '#39E600');
           if (data.errors && data.errors.length) {
             data.errors.forEach(function(e) { log('⚠️ ' + e, '#FF9900'); });
           }

@@ -300,10 +300,20 @@
         stockData = await res.json();
         updateColorAvailability();
         buildSizeButtons();
-        updatePrice();
+        // Force price update with current color/size
+        var priceEl = document.getElementById('productPriceDisplay');
+        var key = currentColorName() + ' / ' + selectedSize;
+        if (priceEl && stockData[key] && stockData[key].price) {
+          priceEl.textContent = '$' + stockData[key].price.toFixed(2);
+        }
       } catch (err) {
         console.log('Stock check failed, assuming all available');
       }
+    }
+
+    function currentColorName() {
+      var el = document.getElementById('colorLabel');
+      return el ? el.textContent : 'Black';
     }
 
     function getPrice() {
@@ -331,7 +341,11 @@
       // Sort in standard order
       var sorted = SIZE_ORDER.filter(function(s) { return allSizes.has(s); });
 
-      return '<button class="size-btn" data-size="' + size + '" onclick="setSize(\'' + size + '\')">' + size + '</button>';
+      container.innerHTML = sorted.map(function(size) {
+        return '<button class="size-btn" data-size="' + size + '" onclick="setSize('' + size + '')">' + size + '</button>';
+      }).join('');
+
+      // Re-apply active state if size already selected
       if (selectedSize) {
         container.querySelectorAll('.size-btn').forEach(function(b) {
           b.classList.toggle('active', b.dataset.size === selectedSize);
@@ -659,14 +673,16 @@
         + '</div>'
         + '</div>';
 
-      // Render shirt with default color
+      // Render shirt with default black
+      currentColor = '#211e16';
+      currentHeather = false;
       if (imagesReady >= 2) renderMockup('#211e16', false);
 
-      // Default select Black / M after DOM settles
+      // Default select Black / M
+      selectedSize = 'M';
+      currentColor = '#211e16';
+      currentHeather = false;
       setTimeout(function() {
-        selectedSize = 'M';
-        currentColor = '#211e16';
-        currentHeather = false;
         var colorLabel = document.getElementById('colorLabel');
         if (colorLabel) colorLabel.textContent = 'Black';
         document.querySelectorAll('.color-swatch').forEach(function(s) {
@@ -675,9 +691,10 @@
         document.querySelectorAll('.size-btn').forEach(function(b) {
           b.classList.toggle('active', b.dataset.size === 'M');
         });
-        // Load stock in background
-        loadStock(product.id);
-      }, 50);
+      }, 0);
+
+      // Load stock in background, then force price update
+      loadStock(product.id);
 
       var relGrid = document.getElementById('relatedGrid');
       products.forEach(function(p) {

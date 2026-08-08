@@ -231,7 +231,6 @@
       renderMockup(hex, currentHeather);
       updateSizeAvailability();
       updatePrice();
-      buildSizeButtons();
     }
 
     function setModel(key) {
@@ -352,20 +351,8 @@
       var price = getPrice();
       if (price) {
         priceEl.textContent = '$' + price.toFixed(2);
-      } else {
-        // Show price range when no size selected
-        var prices = [];
-        Object.values(stockData).forEach(function(v) {
-          if (v && v.price) prices.push(v.price);
-        });
-        if (prices.length > 0) {
-          var min = Math.min.apply(null, prices);
-          var max = Math.max.apply(null, prices);
-          priceEl.textContent = min === max
-            ? '$' + min.toFixed(2)
-            : 'From $' + min.toFixed(2);
-        }
       }
+      // Otherwise leave as-is (shows default product.price or ~)
     }
 
     function updateDesign() {
@@ -647,7 +634,7 @@
         // Right: product info
         + '<div class="product-detail-info">'
         + '<h1>' + product.name + '</h1>'
-        + '<div class="product-price" id="productPriceDisplay">$' + product.price + '</div>'
+        + '<div class="product-price" id="productPriceDisplay">~</div>'
         + '<div class="size-selector">'
         + '<div class="size-label">Size</div>'
         + '<div class="size-btns" id="sizeBtns">'
@@ -676,15 +663,25 @@
         + '</div>'
         + '</div>';
 
-      // Default select Black / M
-      var defaultColor = SHIRT_COLORS.find(function(c) { return c.name === 'Black'; }) || SHIRT_COLORS[0];
-      selectedSize = 'M';
-      setShirtColor(defaultColor.hex, defaultColor.name);
+      // Render shirt with default color
+      if (imagesReady >= 2) renderMockup('#211e16', false);
 
-      if (imagesReady >= 2) renderMockup(defaultColor.hex, false);
-
-      // Load stock availability in background
-      loadStock(product.id);
+      // Default select Black / M after DOM settles
+      setTimeout(function() {
+        selectedSize = 'M';
+        currentColor = '#211e16';
+        currentHeather = false;
+        var colorLabel = document.getElementById('colorLabel');
+        if (colorLabel) colorLabel.textContent = 'Black';
+        document.querySelectorAll('.color-swatch').forEach(function(s) {
+          s.classList.toggle('active', s.dataset.hex === '#211e16');
+        });
+        document.querySelectorAll('.size-btn').forEach(function(b) {
+          b.classList.toggle('active', b.dataset.size === 'M');
+        });
+        // Load stock in background
+        loadStock(product.id);
+      }, 50);
 
       var relGrid = document.getElementById('relatedGrid');
       products.forEach(function(p) {

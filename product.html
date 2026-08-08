@@ -529,14 +529,6 @@
         ? product.placement : { size: 40, x: 30, y: 35 };
 
       var swatchHTML = '';
-      SHIRT_COLORS.forEach(function(c) {
-        swatchHTML += '<button'
-          + ' class="color-swatch' + (c.hex === '#FFFFFF' ? ' active' : '') + '"'
-          + ' style="background:' + c.hex + ';' + (c.hex === '#FFFFFF' ? 'border-color:#C0B8A8;' : '') + '"'
-          + ' data-hex="' + c.hex + '" title="' + c.name + '"'
-          + ' onclick="setShirtColor(\'' + c.hex + '\',\'' + c.name + '\')">'
-          + '</button>';
-      });
 
       var adminHTML = '';
       if (IS_ADMIN) {

@@ -341,11 +341,8 @@
       // Sort in standard order
       var sorted = SIZE_ORDER.filter(function(s) { return allSizes.has(s); });
 
-      container.innerHTML = sorted.map(function(size) {
-        return '<button class="size-btn" data-size="' + size + '" onclick="setSize('' + size + '')">' + size + '</button>';
-      }).join('');
+      return '<button class="size-btn" data-size="' + size + '" onclick="setSize(\'' + size + '\')">' + size + '</button>';
 
-      // Re-apply active state if size already selected
       if (selectedSize) {
         container.querySelectorAll('.size-btn').forEach(function(b) {
           b.classList.toggle('active', b.dataset.size === selectedSize);

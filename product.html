@@ -57,7 +57,6 @@
     </div>
   </footer>
 
-  <script src="descriptions.js"></script>
   <script src="products.js"></script>
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
@@ -92,11 +91,11 @@
       'Heather Dust': '#cdc6bd', 'Heather Emerald': '#13322b',
       'Heather Forest': '#48655b', 'Heather Grass Green': '#427c66',
       'Heather Ice Blue': '#c4e1de', 'Heather Kelly': '#00965e',
-      'Heather Mauve': '#a36d6a', 'Heather Midnight Navy': '#313546',
+      'Heather Mauve': '#b07e7b', 'Heather Midnight Navy': '#313546',
       'Heather Military Green': '#6c6e60', 'Heather Mint': '#a8d5ba',
       'Heather Mustard': '#c6973f', 'Heather Natural': '#e9dbb3',
       'Heather Navy': '#3b4559', 'Heather Oatmeal': '#d1ccbd',
-      'Heather Olive': '#7f7457', 'Heather Orange': '#ff6a39',
+      'Heather Olive': '#7f7457', 'Heather Orange': '#e85a2a',
       'Heather Orchid': '#b0879b', 'Heather Peach': '#f3be8d',
       'Heather Pink': '#f7ced7', 'Heather Prism Dusty Blue': '#9bb2a2',
       'Heather Prism Ice Blue': '#bad1be', 'Heather Prism Lilac': '#c7a1b2',
@@ -602,13 +601,6 @@
       page.innerHTML = '<p>Product not found. <a href="shop.html">Back to shop</a></p>';
     } else {
       document.title = product.name + ' — Duck & Cover';
-      // Load description from txt file
-      loadDescriptions().then(function(descs) {
-        if (descs[productId]) {
-          var descEl = document.getElementById('productDescEl');
-          if (descEl && descs[productId].full) descEl.innerHTML = descs[productId].full;
-        }
-      });
       var pl = (product.placement && typeof product.placement.size !== 'undefined')
         ? product.placement : { size: 40, x: 30, y: 35 };
 
@@ -704,7 +696,7 @@
         + '<button class="size-btn" data-size="3XL" onclick="setSize(\'3XL\')">3XL</button>'
         + '</div>'
         + '</div>'
-        + '<p class="product-description" id="productDescEl">' + product.description + '</p>'
+        + '<p class="product-description">' + product.description + '</p>'
         + '<div class="color-picker-section">'
         + '<div class="color-picker-label">Shirt Color — <span id="colorLabel">White</span></div>'
         + '<div class="color-swatches" id="colorSwatchContainer"><img src="Gerald.gif" style="height:40px;opacity:0.5;" alt="Loading..." /></div>'

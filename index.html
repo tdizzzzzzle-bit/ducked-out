@@ -12,7 +12,7 @@
 
   <nav>
     <a href="index.html" class="nav-logo">
-      <img src="Gerald.svg" alt="Duck & Cover" class="nav-duck" />
+      <img src="gerald.svg" alt="Duck & Cover" class="nav-duck" />
       <span>Duck & Cover</span>
     </a>
     <div class="nav-links">
@@ -35,7 +35,7 @@
       <a href="shop.html" class="btn">Shop the Flock</a>
     </div>
     <div class="hero-duck">
-      <img src="Gerald.svg" alt="Gerald the duck" />
+      <img src="gerald.svg" alt="Gerald the duck" />
       <div class="speech-bubble">quack.</div>
     </div>
   </section>
@@ -49,6 +49,7 @@
       <p class="eyebrow">Hand-Drawn Originals</p>
       <h2>The Flock</h2>
       <div class="product-grid" id="featuredGrid"></div>
+      <a href="shop.html" class="btn btn-outline">See All Designs →</a>
     </div>
   </section>
 
@@ -100,7 +101,7 @@
     }
     // Render 3 featured products
     const grid = document.getElementById('featuredGrid');
-    const featured = products;
+    const featured = products.slice(0, 3);
     featured.forEach(p => {
       grid.innerHTML += `
         <a href="product.html?id=${p.id}" class="product-card">

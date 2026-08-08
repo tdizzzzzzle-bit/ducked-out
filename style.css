@@ -934,3 +934,31 @@ footer {
   color: #C0B8A8;
   cursor: not-allowed;
 }
+
+/* ── Price Manager ── */
+.price-manager-body {
+  max-width: 700px;
+}
+.price-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+}
+.price-row { display: flex; flex-direction: column; gap: 0.4rem; }
+.price-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.price-dollar {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--yellow);
+  font-size: 1.1rem;
+}
+.price-input {
+  width: 100px;
+  text-align: right;
+  font-size: 1.1rem !important;
+  font-weight: 700 !important;
+}

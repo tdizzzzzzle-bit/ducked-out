@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Price Manager — Duck & Cover Admin</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;500;600&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <nav>
+    <a href="index.html" class="nav-logo">
+      <img src="Gerald.svg" alt="Duck & Cover" class="nav-duck" />
+      <span>Duck & Cover Admin</span>
+    </a>
+  </nav>
+
+  <div class="admin-create-page">
+    <div class="admin-create-header">
+      <h1>🛠 Price Manager</h1>
+      <p>Update retail prices across all Printful products. Changes apply to every color variant for the selected duck.</p>
+    </div>
+
+    <div class="price-manager-body">
+
+      <!-- Product selector -->
+      <div class="admin-panel">
+        <div class="admin-title">Step 1 — Select Products to Update</div>
+        <div class="form-group" style="margin-top:0.75rem;">
+          <label class="admin-field-label">Duck</label>
+          <select class="admin-field-input" id="productPrefix">
+            <option value="all">All Ducks</option>
+            <option value="gerald">Gerald</option>
+            <option value="bernard">Bernard</option>
+            <option value="sid">Sid</option>
+            <option value="bartholomew">Bartholomew</option>
+            <option value="toby">Toby</option>
+          </select>
+        </div>
+        <button class="admin-export" onclick="loadProducts()" id="loadBtn" style="margin-top:0.75rem;">
+          🔍 Load Current Prices
+        </button>
+      </div>
+
+      <!-- Current prices table -->
+      <div class="admin-panel" id="currentPricesPanel" style="margin-top:1rem; display:none;">
+        <div class="admin-title">Current Prices</div>
+        <div id="currentPricesTable" style="margin-top:0.75rem;"></div>
+      </div>
+
+      <!-- Price setter -->
+      <div class="admin-panel" style="margin-top:1rem;">
+        <div class="admin-title">Step 2 — Set New Prices</div>
+        <p style="color:rgba(255,255,255,0.6); font-size:0.82rem; margin:0.5rem 0 1rem;">
+          Set retail price per size tier. 2XL and 3XL typically cost more to produce.
+        </p>
+
+        <div class="price-grid">
+          <div class="price-row">
+            <label class="admin-field-label">S / M / L / XL</label>
+            <div class="price-input-wrap">
+              <span class="price-dollar">$</span>
+              <input class="admin-field-input price-input" id="priceBase" type="number" value="28" min="1" step="0.01" />
+            </div>
+          </div>
+          <div class="price-row">
+            <label class="admin-field-label">2XL</label>
+            <div class="price-input-wrap">
+              <span class="price-dollar">$</span>
+              <input class="admin-field-input price-input" id="price2XL" type="number" value="30" min="1" step="0.01" />
+            </div>
+          </div>
+          <div class="price-row">
+            <label class="admin-field-label">3XL</label>
+            <div class="price-input-wrap">
+              <span class="price-dollar">$</span>
+              <input class="admin-field-input price-input" id="price3XL" type="number" value="33" min="1" step="0.01" />
+            </div>
+          </div>
+        </div>
+
+        <div id="previewSection" style="margin-top:1rem; display:none;">
+          <div class="admin-output" id="previewOutput"></div>
+        </div>
+
+        <div style="display:flex; gap:0.75rem; margin-top:1rem; flex-wrap:wrap;">
+          <button class="admin-export" onclick="previewPrices()" style="flex:1; min-width:120px;">
+            👁 Preview Changes
+          </button>
+          <button class="admin-export" onclick="applyPrices()" id="applyBtn"
+            style="flex:1; min-width:120px; background:#C41230; display:none;">
+            ✅ Apply to Printful
+          </button>
+        </div>
+        <div class="admin-hint" style="margin-top:0.5rem;">
+          Preview first — Apply sends the changes directly to Printful.
+        </div>
+      </div>
+
+      <!-- Status log -->
+      <div class="admin-panel" id="logPanel" style="margin-top:1rem; display:none;">
+        <div class="admin-title">📋 Update Log</div>
+        <div id="logOutput" style="font-family:monospace; font-size:0.78rem; color:rgba(255,255,255,0.8); margin-top:0.75rem; line-height:1.8;"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const WORKER_URL = 'https://duck-and-cover-worker.tdizzzzzzle.workers.dev';
+    var loadedProducts = [];
+
+    function log(msg, color) {
+      var panel = document.getElementById('logPanel');
+      var output = document.getElementById('logOutput');
+      panel.style.display = 'block';
+      var line = document.createElement('div');
+      line.style.color = color || 'rgba(255,255,255,0.8)';
+      line.textContent = new Date().toLocaleTimeString() + ' — ' + msg;
+      output.appendChild(line);
+      output.scrollTop = output.scrollHeight;
+    }
+
+    async function loadProducts() {
+      var prefix = document.getElementById('productPrefix').value;
+      var btn = document.getElementById('loadBtn');
+      btn.textContent = '⏳ Loading...';
+      btn.disabled = true;
+
+      try {
+        var res = await fetch(WORKER_URL + '/get-products?prefix=' + encodeURIComponent(prefix));
+        var data = await res.json();
+        loadedProducts = data;
+
+        // Show current prices
+        var panel = document.getElementById('currentPricesPanel');
+        var table = document.getElementById('currentPricesTable');
+        panel.style.display = 'block';
+
+        var html = '<table style="width:100%; border-collapse:collapse; font-size:0.8rem; color:rgba(255,255,255,0.8);">'
+          + '<tr style="border-bottom:1px solid rgba(255,255,255,0.2);">'
+          + '<th style="text-align:left; padding:0.3rem 0.5rem;">Product</th>'
+          + '<th style="text-align:left; padding:0.3rem 0.5rem;">Color</th>'
+          + '<th style="text-align:left; padding:0.3rem 0.5rem;">Size</th>'
+          + '<th style="text-align:right; padding:0.3rem 0.5rem;">Current Price</th>'
+          + '</tr>';
+
+        data.forEach(function(product) {
+          product.variants.forEach(function(v) {
+            html += '<tr style="border-bottom:1px solid rgba(255,255,255,0.08);">'
+              + '<td style="padding:0.25rem 0.5rem;">' + product.name + '</td>'
+              + '<td style="padding:0.25rem 0.5rem;">' + v.color + '</td>'
+              + '<td style="padding:0.25rem 0.5rem;">' + v.size + '</td>'
+              + '<td style="padding:0.25rem 0.5rem; text-align:right;">$' + parseFloat(v.retail_price).toFixed(2) + '</td>'
+              + '</tr>';
+          });
+        });
+        html += '</table>';
+        table.innerHTML = html;
+
+        log('Loaded ' + data.length + ' products with ' + data.reduce(function(a,p){return a+p.variants.length;},0) + ' variants', '#F5C842');
+
+      } catch (err) {
+        log('Error loading products: ' + err.message, '#FF4444');
+      }
+
+      btn.textContent = '🔍 Load Current Prices';
+      btn.disabled = false;
+    }
+
+    function getNewPrice(size) {
+      var base = parseFloat(document.getElementById('priceBase').value) || 28;
+      var xl2  = parseFloat(document.getElementById('price2XL').value)  || 30;
+      var xl3  = parseFloat(document.getElementById('price3XL').value)  || 33;
+      if (size === '3XL') return xl3;
+      if (size === '2XL') return xl2;
+      return base;
+    }
+
+    function previewPrices() {
+      if (!loadedProducts.length) {
+        alert('Load products first!');
+        return;
+      }
+
+      var lines = [];
+      var totalVariants = 0;
+      loadedProducts.forEach(function(product) {
+        lines.push('📦 ' + product.name + ':');
+        product.variants.slice(0, 3).forEach(function(v) {
+          var newPrice = getNewPrice(v.size);
+          lines.push('   ' + v.color + ' / ' + v.size + ': $' + parseFloat(v.retail_price).toFixed(2) + ' → $' + newPrice.toFixed(2));
+          totalVariants++;
+        });
+        if (product.variants.length > 3) {
+          lines.push('   ... and ' + (product.variants.length - 3) + ' more variants');
+        }
+      });
+      lines.push('');
+      lines.push('Total: ' + loadedProducts.reduce(function(a,p){return a+p.variants.length;},0) + ' variants will be updated');
+
+      document.getElementById('previewSection').style.display = 'block';
+      document.getElementById('previewOutput').textContent = lines.join('\n');
+      document.getElementById('applyBtn').style.display = 'block';
+    }
+
+    async function applyPrices() {
+      if (!loadedProducts.length) return;
+      if (!confirm('Apply new prices to ALL selected variants in Printful? This cannot be undone.')) return;
+
+      var applyBtn = document.getElementById('applyBtn');
+      applyBtn.textContent = '⏳ Updating...';
+      applyBtn.disabled = true;
+
+      var updates = [];
+      loadedProducts.forEach(function(product) {
+        product.variants.forEach(function(v) {
+          updates.push({
+            variantId:  v.id,
+            retailPrice: getNewPrice(v.size).toFixed(2),
+          });
+        });
+      });
+
+      log('Sending ' + updates.length + ' price updates to Printful...', '#F5C842');
+
+      try {
+        var res = await fetch(WORKER_URL + '/update-prices', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ updates: updates }),
+        });
+        var data = await res.json();
+
+        if (data.success) {
+          log('✅ Updated ' + data.updated + ' variants successfully!', '#39E600');
+          if (data.errors && data.errors.length) {
+            data.errors.forEach(function(e) { log('⚠️ ' + e, '#FF9900'); });
+          }
+        } else {
+          log('❌ Error: ' + (data.error || 'Unknown error'), '#FF4444');
+        }
+      } catch (err) {
+        log('❌ Request failed: ' + err.message, '#FF4444');
+      }
+
+      applyBtn.textContent = '✅ Apply to Printful';
+      applyBtn.disabled = false;
+    }
+  </script>
+
+</body>
+</html>

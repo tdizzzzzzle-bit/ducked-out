@@ -297,6 +297,37 @@
 
     var SIZE_ORDER = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL'];
 
+    function buildColorSwatches() {
+      var container = document.getElementById('colorSwatchContainer');
+      if (!container || Object.keys(stockData).length === 0) return;
+
+      var colorSet = {};
+      Object.keys(stockData).forEach(function(key) {
+        var parts = key.split(' / ');
+        if (parts.length === 2) {
+          var name = parts[0];
+          if (!colorSet[name]) colorSet[name] = COLOR_HEX[name] || '#999999';
+        }
+      });
+
+      var html = '';
+      Object.keys(colorSet).sort().forEach(function(name) {
+        var hex = colorSet[name];
+        var isLight = hex.toUpperCase() === '#F4F5F0' || hex.toUpperCase() === '#EDF1FF' || hex.toUpperCase() === '#DECB99';
+        var border = isLight ? 'border-color:#C0B8A8;' : '';
+        html += '<button class="color-swatch" style="background:' + hex + ';' + border + '"'
+              + ' data-hex="' + hex + '" title="' + name + '"'
+              + ' onclick="setShirtColor('' + hex + '','' + name.replace(/'/g, "\'") + '')">'
+              + '</button>';
+      });
+
+      container.innerHTML = html;
+
+      container.querySelectorAll('.color-swatch').forEach(function(s) {
+        s.classList.toggle('active', s.dataset.hex === currentColor);
+      });
+    }
+
     function buildSizeButtons() {
       var colorName = document.getElementById('colorLabel') ? document.getElementById('colorLabel').textContent : '';
       var container = document.getElementById('sizeBtns');

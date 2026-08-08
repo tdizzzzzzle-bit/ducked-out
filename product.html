@@ -475,6 +475,26 @@
     }
 
     var WORKER_URL = 'https://duck-and-cover-worker.tdizzzzzzle.workers.dev';
+    var catalogCache = null;
+
+    var DUCK_IMAGES = {
+      gerald:      'Gerald.svg', bernard:     'Bernard.svg',
+      sid:         'DuckCream.svg', bartholomew: 'Bartholomew.svg', toby: 'Toby.svg',
+    };
+    var DUCK_DESC = {
+      gerald:      'Roller skates. Party hat. Zero explanation.',
+      bernard:     'A Hork, a Duorse, and Nigel.',
+      sid:         'Cold snack, says quack.',
+      bartholomew: 'Herein flies Bartholomew. Thou art warned.',
+      toby:        'WHYYYY!?!',
+    };
+
+    async function getCatalog() {
+      if (catalogCache) return catalogCache;
+      var res = await fetch(WORKER_URL + '/get-catalog');
+      catalogCache = await res.json();
+      return catalogCache;
+    }
     var stockData = {}; // populated after page loads
 
     async function handleBuyNow() {

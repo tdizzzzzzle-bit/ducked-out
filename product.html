@@ -231,6 +231,7 @@
       renderMockup(hex, currentHeather);
       updateSizeAvailability();
       updatePrice();
+      buildSizeButtons();
     }
 
     function setModel(key) {
@@ -299,7 +300,7 @@
         var res = await fetch(WORKER_URL + '/get-stock?productId=' + productId);
         stockData = await res.json();
         updateColorAvailability();
-        updateSizeAvailability();
+        buildSizeButtons();
         updatePrice();
       } catch (err) {
         console.log('Stock check failed, assuming all available');
@@ -314,12 +315,56 @@
       return stockData[key] ? stockData[key].price : null;
     }
 
+    var SIZE_ORDER = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL'];
+
+    function buildSizeButtons() {
+      var colorName = document.getElementById('colorLabel') ? document.getElementById('colorLabel').textContent : '';
+      var container = document.getElementById('sizeBtns');
+      if (!container || Object.keys(stockData).length === 0) return;
+
+      // Get all sizes available for ANY color (so buttons don't disappear on color change)
+      var allSizes = new Set();
+      Object.keys(stockData).forEach(function(key) {
+        var parts = key.split(' / ');
+        if (parts.length === 2) allSizes.add(parts[1]);
+      });
+
+      // Sort in standard order
+      var sorted = SIZE_ORDER.filter(function(s) { return allSizes.has(s); });
+
+      container.innerHTML = sorted.map(function(size) {
+        return '<button class="size-btn" data-size="' + size + '" onclick="setSize('' + size + '')">' + size + '</button>';
+      }).join('');
+
+      // Re-apply active state if size already selected
+      if (selectedSize) {
+        container.querySelectorAll('.size-btn').forEach(function(b) {
+          b.classList.toggle('active', b.dataset.size === selectedSize);
+        });
+      }
+
+      updateSizeAvailability();
+    }
+
     function updatePrice() {
       var priceEl = document.getElementById('productPriceDisplay');
       if (!priceEl) return;
       var price = getPrice();
       if (price) {
         priceEl.textContent = '$' + price.toFixed(2);
+      } else {
+        // Show price range when no size selected
+        var prices = [];
+        Object.values(stockData).forEach(function(v) {
+          if (v && v.price) prices.push(v.price);
+        });
+        if (prices.length > 0) {
+          var min = Math.min.apply(null, prices);
+          var max = Math.max.apply(null, prices);
+          priceEl.textContent = min === max
+            ? '$' + min.toFixed(2)
+            : 'From $' + min.toFixed(2);
+        }
       }
     }
 
@@ -605,14 +650,7 @@
         + '<div class="product-price" id="productPriceDisplay">$' + product.price + '</div>'
         + '<div class="size-selector">'
         + '<div class="size-label">Size</div>'
-        + '<div class="size-btns">'
-        + '<button class="size-btn" data-size="S"   onclick="setSize(\'S\')">S</button>'
-        + '<button class="size-btn" data-size="M"   onclick="setSize(\'M\')">M</button>'
-        + '<button class="size-btn" data-size="L"   onclick="setSize(\'L\')">L</button>'
-        + '<button class="size-btn" data-size="XL"  onclick="setSize(\'XL\')">XL</button>'
-        + '<button class="size-btn" data-size="2XL" onclick="setSize(\'2XL\')">2XL</button>'
-        + '<button class="size-btn" data-size="3XL" onclick="setSize(\'3XL\')">3XL</button>'
-        + '</div>'
+        + '<div class="size-btns" id="sizeBtns"><span style="color:var(--text-light);font-size:0.85rem;">Loading sizes...</span></div>'
         + '</div>'
         + '<p class="product-description">' + product.description + '</p>'
         + '<div class="color-picker-section">'

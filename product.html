@@ -57,6 +57,7 @@
     </div>
   </footer>
 
+  <script src="descriptions.js"></script>
   <script src="products.js"></script>
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
@@ -601,6 +602,13 @@
       page.innerHTML = '<p>Product not found. <a href="shop.html">Back to shop</a></p>';
     } else {
       document.title = product.name + ' — Duck & Cover';
+      // Load description from txt file
+      loadDescriptions().then(function(descs) {
+        if (descs[productId]) {
+          var descEl = document.getElementById('productDescEl');
+          if (descEl && descs[productId].full) descEl.innerHTML = descs[productId].full;
+        }
+      });
       var pl = (product.placement && typeof product.placement.size !== 'undefined')
         ? product.placement : { size: 40, x: 30, y: 35 };
 
@@ -696,7 +704,7 @@
         + '<button class="size-btn" data-size="3XL" onclick="setSize(\'3XL\')">3XL</button>'
         + '</div>'
         + '</div>'
-        + '<p class="product-description">' + product.description + '</p>'
+        + '<p class="product-description" id="productDescEl">' + product.description + '</p>'
         + '<div class="color-picker-section">'
         + '<div class="color-picker-label">Shirt Color — <span id="colorLabel">White</span></div>'
         + '<div class="color-swatches" id="colorSwatchContainer"><img src="Gerald.gif" style="height:40px;opacity:0.5;" alt="Loading..." /></div>'

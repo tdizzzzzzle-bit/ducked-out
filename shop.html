@@ -57,6 +57,7 @@
     </div>
   </footer>
 
+  <script src="descriptions.js"></script>
   <script src="products.js"></script>
   <script>
     var WORKER_URL = 'https://duck-and-cover-worker.tdizzzzzzle.workers.dev';
@@ -100,6 +101,7 @@
 
     async function loadShop() {
       var grid = document.getElementById('shopGrid');
+      var descs = await loadDescriptions();
       try {
         var res  = await fetch(WORKER_URL + '/get-catalog');
         var data = await res.json();
@@ -119,7 +121,7 @@
         grid.innerHTML = '';
         data.forEach(function(duck) {
           var image = DUCK_IMAGES[duck.id] || duck.thumbnail;
-          var desc  = DUCK_DESC[duck.id]   || 'A very special duck.';
+          var desc  = (descs[duck.id] && descs[duck.id].short) || DUCK_DESC[duck.id] || 'A very special duck.';
           var price = duck.minPrice ? 'From $' + duck.minPrice.toFixed(2) : '';
           var link  = 'product.html?id=' + duck.id + (IS_ADMIN ? '&admin=quack' : '');
 

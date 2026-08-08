@@ -1,0 +1,14 @@
+# Duck & Cover — Product Descriptions
+# Format: id///short description///full description
+# Lines starting with # are ignored. Blank lines are ignored.
+# The id must match the first word of your Printful product names (lowercase).
+
+gerald///Roller skates. Party hat. Zero explanation.///Gerald showed up to someone else's birthday party on roller skates, ate their cake, and left on a skateboard. He is wearing a party hat. He holds what appears to be an ice cream cone. He does not explain himself. Printed on a soft Bella+Canvas 3001 tee.
+
+bernard///A Hork, a Duorse, and Nigel.///Bernard is a hork. On his back rides Nigel. On his hat sits Reggie, the Duorse. Bernard carries them all without complaint. They are good company for a Hork like Bernard. Printed on a soft Bella+Canvas 3001 tee.
+
+sid///Cold snack, says quack.///Sid is a duck whose entire body is a soft-serve ice cream cone. He has a violent red punk mohawk. He does not have legs. He does not need legs. Named after Sid Vicious, who also did not need legs. Printed on a soft Bella+Canvas 3001 tee.
+
+bartholomew///Herein flies Bartholomew. Thou art warned.///Hark. What manner of creature dost traverse yon sky with such confidence? Tis Bartholomew the Clappinator, hoarder of muffins. Ye be warned. Printed on a soft Bella+Canvas 3001 tee.
+
+toby///WHYYYY!?!///He has no mouth, and he must scream.<br>Printed on a soft Bella+Canvas 3001 tee.

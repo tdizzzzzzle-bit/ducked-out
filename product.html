@@ -71,87 +71,54 @@
     var uploadedFile     = null;
     var uploadedFileName = '';
 
-    const SHIRT_COLORS = [
-      // Whites & Creams
-      { name: 'Soft Cream', hex: '#decb99' },
-      { name: 'Pebble', hex: '#857874' },
-      // Greys
-      { name: 'Athletic Heather', hex: '#acb1a6' },
-      { name: 'Heather Slate', hex: '#586975' },
-      { name: 'Dark Grey Heather', hex: '#525657' },
-      { name: 'Dark Grey', hex: '#38484e' },
-      { name: 'Asphalt', hex: '#6c6864' },
-      // Blacks
-      { name: 'Vintage Black', hex: '#212322' },
-      { name: 'Black Heather', hex: '#454038' },
-      { name: 'Black', hex: '#211e16' },
-      { name: 'Oxblood Black', hex: '#3f2537' },
-      // Pinks & Reds
-      { name: 'Heather Prism Peach', hex: '#eabeb0' },
-      { name: 'Pink', hex: '#f7ced7' },
-      { name: 'Charity Pink', hex: '#df6797' },
-      { name: 'Heather Orchid', hex: '#b0879b' },
-      { name: 'Heather Raspberry', hex: '#c03060' },
-      { name: 'Heather Red', hex: '#bf0d3e' },
-      { name: 'Red', hex: '#e10600' },
-      { name: 'Cardinal', hex: '#9b2743' },
-      { name: 'Berry', hex: '#c3167c' },
-      { name: 'Maroon', hex: '#672e45' },
-      // Oranges & Yellows
-      { name: 'Heather Orange', hex: '#ff6a39' },
-      { name: 'Orange', hex: '#ff6b00' },
-      { name: 'Burnt Orange', hex: '#cb6015' },
-      { name: 'Autumn', hex: '#9c5331' },
-      { name: 'Heather Autumn', hex: '#a66646' },
-      { name: 'Heather Yellow Gold', hex: '#fdd26e' },
-      { name: 'Mustard', hex: '#c6973f' },
-      { name: 'Gold', hex: '#ffa300' },
-      { name: 'Toast', hex: '#9e6a38' },
-      // Greens
-      { name: 'Heather Prism Mint', hex: '#a0dab3' },
-      { name: 'Sage', hex: '#97a798' },
-      { name: 'Heather Grass Green', hex: '#427c66' },
-      { name: 'Leaf', hex: '#659256' },
-      { name: 'Heather Kelly', hex: '#00965e' },
-      { name: 'Kelly', hex: '#007a53' },
-      { name: 'Heather Emerald', hex: '#13322b' },
-      { name: 'Heather Forest', hex: '#48655b' },
-      { name: 'Forest', hex: '#183028' },
-      { name: 'Heather Olive', hex: '#7f7457' },
-      { name: 'Olive', hex: '#414823' },
-      { name: 'Army', hex: '#55574c' },
-      { name: 'Military Green', hex: '#60705e' },
-      // Blues & Teals
-      { name: 'Baby Blue', hex: '#83b0c1' },
-      { name: 'Light Blue', hex: '#a6bbc8' },
-      { name: 'Heather Prism Dusty Blue', hex: '#9bb2a2' },
-      { name: 'Heather Aqua', hex: '#48a9c5' },
-      { name: 'Aqua', hex: '#4298b5' },
-      { name: 'Turquoise', hex: '#00afd7' },
-      { name: 'Teal', hex: '#00bfb3' },
-      { name: 'Heather Deep Teal', hex: '#34657f' },
-      { name: 'Ocean Blue', hex: '#62a8c1' },
-      { name: 'Heather Carolina Blue', hex: '#8baad4' },
-      { name: 'Heather Columbia Blue', hex: '#658bcc' },
-      { name: 'Steel Blue', hex: '#5f849c' },
-      { name: 'Heather True Royal', hex: '#24509a' },
-      { name: 'True Royal', hex: '#3b61a6' },
-      { name: 'Heather Navy', hex: '#3b4559' },
-      { name: 'Heather Midnight Navy', hex: '#313546' },
-      { name: 'Navy', hex: '#1f2a44' },
-      // Purples & Mauve
-      { name: 'Mauve', hex: '#a36d6a' },
-      { name: 'Heather Prism Lilac', hex: '#c7a1b2' },
-      { name: 'Lilac', hex: '#d1acce' },
-      { name: 'Heather Mauve', hex: '#a36d6a' },
-      { name: 'Heather Team Purple', hex: '#7d55c7' },
-      { name: 'Team Purple', hex: '#2e1a47' },
-      // Browns & Tans
-      { name: 'Heather Clay', hex: '#a26859' },
-      { name: 'Tan', hex: '#afa17c' },
-      { name: 'Brown', hex: '#5e514d' },
-      { name: 'Heather Brown', hex: '#5e4b3c' },
-    ];
+    // Hex lookup by Printful color name — used to build swatches dynamically from stock data
+    const COLOR_HEX = {
+      'Aqua': '#4298b5', 'Army': '#55574c', 'Ash': '#edf1ff',
+      'Asphalt': '#6c6864', 'Athletic Heather': '#acb1a6', 'Atlantic': '#113b40',
+      'Autumn': '#9c5331', 'Baby Blue': '#83b0c1', 'Berry': '#c3167c',
+      'Black': '#211e16', 'Black Heather': '#454038', 'Brown': '#5e514d',
+      'Burnt Orange': '#cb6015', 'Cardinal': '#9b2743', 'Carolina Blue': '#8baad4',
+      'Charity Pink': '#df6797', 'Chestnut': '#8a4b32', 'Citron': '#dde3d5',
+      'Clay': '#a26859', 'Columbia Blue': '#5571a4', 'Cool Blue': '#01426a',
+      'Cool Grey': '#c4bcb7', 'Coral': '#f87c56', 'Dark Grey': '#38484e',
+      'Dark Grey Heather': '#525657', 'Dark Lavender': '#9b91be', 'Dark Olive': '#36362d',
+      'Deep Teal': '#00597a', 'Dust': '#cdc6bd', 'Dusty Blue': '#9bb2a2',
+      'Electric Blue': '#006eb3', 'Emerald': '#13322b', 'Evergreen': '#115740',
+      'Forest': '#183028', 'Gold': '#ffa300', 'Grass Green': '#427c66',
+      'Heather Aqua': '#48a9c5', 'Heather Autumn': '#a66646', 'Heather Brown': '#5e4b3c',
+      'Heather Carolina Blue': '#8baad4', 'Heather Clay': '#a26859',
+      'Heather Columbia Blue': '#658bcc', 'Heather Deep Teal': '#34657f',
+      'Heather Dust': '#cdc6bd', 'Heather Emerald': '#13322b',
+      'Heather Forest': '#48655b', 'Heather Grass Green': '#427c66',
+      'Heather Ice Blue': '#c4e1de', 'Heather Kelly': '#00965e',
+      'Heather Mauve': '#a36d6a', 'Heather Midnight Navy': '#313546',
+      'Heather Military Green': '#6c6e60', 'Heather Mint': '#a8d5ba',
+      'Heather Mustard': '#c6973f', 'Heather Natural': '#e9dbb3',
+      'Heather Navy': '#3b4559', 'Heather Oatmeal': '#d1ccbd',
+      'Heather Olive': '#7f7457', 'Heather Orange': '#ff6a39',
+      'Heather Orchid': '#b0879b', 'Heather Peach': '#f3be8d',
+      'Heather Pink': '#f7ced7', 'Heather Prism Dusty Blue': '#9bb2a2',
+      'Heather Prism Ice Blue': '#bad1be', 'Heather Prism Lilac': '#c7a1b2',
+      'Heather Prism Mint': '#a0dab3', 'Heather Prism Natural': '#d2cfc4',
+      'Heather Prism Peach': '#eabeb0', 'Heather Raspberry': '#c03060',
+      'Heather Red': '#bf0d3e', 'Heather Sage': '#95a69f',
+      'Heather Slate': '#586975', 'Heather Soft Cream': '#decb99',
+      'Heather Tan': '#b8b298', 'Heather Team Purple': '#7d55c7',
+      'Heather True Royal': '#24509a', 'Heather Yellow Gold': '#fdd26e',
+      'Ice Blue': '#c4e1de', 'Kelly': '#007a53', 'Leaf': '#659256',
+      'Light Blue': '#a6bbc8', 'Lilac': '#d1acce', 'Maroon': '#672e45',
+      'Mauve': '#a36d6a', 'Midnight': '#1f2a44', 'Military Green': '#60705e',
+      'Mint': '#a0dab3', 'Mustard': '#c6973f', 'Natural': '#dfd1a7',
+      'Navy': '#1f2a44', 'Ocean Blue': '#62a8c1', 'Olive': '#414823',
+      'Orange': '#ff6a39', 'Oxblood Black': '#3f2537', 'Pebble': '#857874',
+      'Pink': '#f7ced7', 'Red': '#e10600', 'Sage': '#97a798',
+      'Silver': '#c7c9c7', 'Slate': '#586975', 'Soft Cream': '#decb99',
+      'Soft Pink': '#eed9d4', 'Steel Blue': '#5f849c', 'Tan': '#afa17c',
+      'Teal': '#00bfb3', 'Team Purple': '#2e1a47', 'Toast': '#9e6a38',
+      'True Royal': '#3b61a6', 'Turquoise': '#00afd7', 'Vintage Black': '#212322',
+      'Vintage White': '#dfddd7', 'White': '#f4f5f0', 'Yellow': '#fcea76',
+      'Yellow Gold': '#f6d03a',
+    };
 
     var MODELS = {
       man:   { shirt: 'model_shirt.png',  arms: 'model_arms.png'  },
@@ -225,7 +192,8 @@
       currentColor   = hex;
       currentHeather = isHeather(name);
       document.getElementById('colorLabel').textContent = name;
-      document.querySelectorAll('.color-swatch').forEach(function(s) {
+      var swatchCont = document.getElementById('colorSwatchContainer');
+      if (swatchCont) swatchCont.querySelectorAll('.color-swatch').forEach(function(s) {
         s.classList.toggle('active', s.dataset.hex === hex);
       });
       renderMockup(hex, currentHeather);
@@ -284,7 +252,9 @@
     }
 
     function updateColorAvailability() {
-      document.querySelectorAll('.color-swatch').forEach(function(btn) {
+      var container = document.getElementById('colorSwatchContainer');
+      if (!container) return;
+      container.querySelectorAll('.color-swatch').forEach(function(btn) {
         var colorName = btn.title;
         var avail = isColorAvailable(colorName);
         btn.disabled = !avail;
@@ -299,6 +269,7 @@
         var res = await fetch(WORKER_URL + '/get-stock?productId=' + productId);
         stockData = await res.json();
         updateColorAvailability();
+        buildColorSwatches();
         buildSizeButtons();
         // Force price update with current color/size
         var priceEl = document.getElementById('productPriceDisplay');
@@ -341,8 +312,11 @@
       // Sort in standard order
       var sorted = SIZE_ORDER.filter(function(s) { return allSizes.has(s); });
 
-      return '<button class="size-btn" data-size="' + size + '" onclick="setSize(\'' + size + '\')">' + size + '</button>';
+      container.innerHTML = sorted.map(function(size) {
+        return '<button class="size-btn" data-size="' + size + '" onclick="setSize(\'' + size + '\')">' + size + '</button>';
+      }).join('');
 
+      // Re-apply active state if size already selected
       if (selectedSize) {
         container.querySelectorAll('.size-btn').forEach(function(b) {
           b.classList.toggle('active', b.dataset.size === selectedSize);

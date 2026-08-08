@@ -317,7 +317,7 @@
         var border = isLight ? 'border-color:#C0B8A8;' : '';
         html += '<button class="color-swatch" style="background:' + hex + ';' + border + '"'
               + ' data-hex="' + hex + '" title="' + name + '"'
-              + ' onclick="setShirtColor('' + hex + '','' + name.replace(/'/g, "\'") + '')">'
+              + ' onclick="setShirtColor(\'' + hex + '\',\'' + name + '\')">'  
               + '</button>';
       });
 

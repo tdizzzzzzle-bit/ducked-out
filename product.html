@@ -650,7 +650,15 @@
         + '<div class="product-price" id="productPriceDisplay">$' + product.price + '</div>'
         + '<div class="size-selector">'
         + '<div class="size-label">Size</div>'
-        + '<div class="size-btns" id="sizeBtns"><span style="color:var(--text-light);font-size:0.85rem;">Loading sizes...</span></div>'
+        + '<div class="size-btns" id="sizeBtns">'
+        + '<button class="size-btn" data-size="XS" onclick="setSize(\'XS\')">XS</button>'
+        + '<button class="size-btn" data-size="S"  onclick="setSize(\'S\')">S</button>'
+        + '<button class="size-btn active" data-size="M"  onclick="setSize(\'M\')">M</button>'
+        + '<button class="size-btn" data-size="L"  onclick="setSize(\'L\')">L</button>'
+        + '<button class="size-btn" data-size="XL" onclick="setSize(\'XL\')">XL</button>'
+        + '<button class="size-btn" data-size="2XL" onclick="setSize(\'2XL\')">2XL</button>'
+        + '<button class="size-btn" data-size="3XL" onclick="setSize(\'3XL\')">3XL</button>'
+        + '</div>'
         + '</div>'
         + '<p class="product-description">' + product.description + '</p>'
         + '<div class="color-picker-section">'
@@ -668,7 +676,12 @@
         + '</div>'
         + '</div>';
 
-      if (imagesReady >= 2) renderMockup('#FFFFFF');
+      // Default select Black / M
+      var defaultColor = SHIRT_COLORS.find(function(c) { return c.name === 'Black'; }) || SHIRT_COLORS[0];
+      selectedSize = 'M';
+      setShirtColor(defaultColor.hex, defaultColor.name);
+
+      if (imagesReady >= 2) renderMockup(defaultColor.hex, false);
 
       // Load stock availability in background
       loadStock(product.id);

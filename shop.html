@@ -120,7 +120,7 @@
         });
         grid.innerHTML = '';
         data.forEach(function(duck) {
-          var image = DUCK_IMAGES[duck.id] || duck.thumbnail;
+          var image = (descs[duck.id] && descs[duck.id].image) || DUCK_IMAGES[duck.id] || duck.thumbnail;
           var desc  = (descs[duck.id] && descs[duck.id].short) || DUCK_DESC[duck.id] || 'A very special duck.';
           var price = duck.minPrice ? 'From $' + duck.minPrice.toFixed(2) : '';
           var link  = 'product.html?id=' + duck.id + (IS_ADMIN ? '&admin=quack' : '');

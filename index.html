@@ -31,12 +31,11 @@
     <div class="hero-text">
       <p class="eyebrow">Hand-Drawn · DTF Pressed · Ships Fast</p>
       <h1>Duck<br><span class="outline">&amp; Cover.</span></h1>
-      <p class="hero-sub">Absurd hand-drawn duck cartoons pressed on premium tees. Zero regrets. Plenty of quacking.</p>
+      <p class="hero-sub">Absurd hand-drawn duck cartoons pressed on premium tees.</p>
       <a href="shop.html" class="btn">Shop the Flock</a>
     </div>
     <div class="hero-duck">
       <img src="Gerald.gif" alt="Gerald" />
-      <div class="speech-bubble">quack.</div>
     </div>
   </section>
 
@@ -56,12 +55,12 @@
   <section class="how-it-works">
     <div class="container">
       <p class="eyebrow">How It Works</p>
-      <h2>Made by Hand. Pressed In-House.</h2>
+      <h2>Made by Hand.</h2>
       <div class="steps">
         <div class="step">
           <div class="step-icon">✏️</div>
           <h3>Hand-Drawn</h3>
-          <p>Every duck is drawn by hand. No AI slop. Pure unhinged creativity.</p>
+          <p>Every duck is drawn by hand. No AI slop. Just the result of boredom in college.</p>
         </div>
         <div class="step">
           <div class="step-icon">⚡</div>
@@ -71,7 +70,7 @@
         <div class="step">
           <div class="step-icon">🔥</div>
           <h3>Heat Pressed</h3>
-          <p>Every shirt pressed in-house with care and mild chaos.</p>
+          <p>Every shirt pressed with care.</p>
         </div>
         <div class="step">
           <div class="step-icon">📦</div>
@@ -85,7 +84,7 @@
   <footer>
     <div class="container footer-inner">
       <a href="index.html" class="footer-logo">Duck & Cover</a>
-      <p>© <span id="year"></span> Duck & Cover. All ducks reserved.</p>
+      <p>© <span id="year"></span> Duck & Cover.</p>
       <div class="footer-links">
         <a href="shop.html">Shop</a>
         <a href="about.html">About</a>
@@ -132,7 +131,7 @@
         });
         grid.innerHTML = '';
         data.forEach(function(duck) {
-          var img   = DUCK_IMAGES[duck.id] || duck.thumbnail || 'Gerald.svg';
+          var img   = (descs[duck.id] && descs[duck.id].image) || DUCK_IMAGES[duck.id] || duck.thumbnail || 'Gerald.svg';
           var desc  = (descs[duck.id] && descs[duck.id].short) || DUCK_DESC[duck.id] || 'A very special duck.';
           var price = duck.minPrice ? 'From $' + duck.minPrice.toFixed(2) : '';
           grid.innerHTML += '<a href="product.html?id=' + duck.id + '" class="product-card">'

@@ -1,5 +1,5 @@
 // Loads duck descriptions from descriptions.txt
-// Format per line: id///short description///full description
+// Format: id///image///short description///full description
 var _descCache = null;
 
 async function loadDescriptions() {
@@ -11,11 +11,12 @@ async function loadDescriptions() {
       line = line.trim();
       if (!line || line.startsWith('#')) return;
       var parts = line.split('///');
-      if (parts.length >= 3) {
+      if (parts.length >= 4) {
         var id = parts[0].trim().toLowerCase();
         result[id] = {
-          short: parts[1].trim(),
-          full:  parts[2].trim(),
+          image: parts[1].trim(),
+          short: parts[2].trim(),
+          full:  parts[3].trim(),
         };
       }
     });

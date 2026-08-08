@@ -95,26 +95,51 @@
 
   <script src="products.js"></script>
   <script>
+    var WORKER_URL = 'https://duck-and-cover-worker.tdizzzzzzle.workers.dev';
+    var DUCK_IMAGES = {
+      gerald:'Gerald.svg', bernard:'Bernard.svg', sid:'DuckCream.svg',
+      bartholomew:'Bartholomew.svg', toby:'Toby.svg'
+    };
+    var DUCK_DESC = {
+      gerald:'Roller skates. Party hat. Zero explanation.',
+      bernard:'A Hork, a Duorse, and Nigel.',
+      sid:'Cold snack, says quack.',
+      bartholomew:'Herein flies Bartholomew. Thou art warned.',
+      toby:'WHYYYY!?!'
+    };
+
     document.getElementById('year').textContent = new Date().getFullYear();
     function toggleNav() {
       document.getElementById('mobileMenu').classList.toggle('open');
     }
-    // Render 3 featured products
-    const grid = document.getElementById('featuredGrid');
-    const featured = products.slice(0, 3);
-    featured.forEach(p => {
-      grid.innerHTML += `
-        <a href="product.html?id=${p.id}" class="product-card">
-          <div class="card-img">
-            <img src="${p.image}" alt="${p.name}" />
-          </div>
-          <div class="card-info">
-            <h3>${p.name}</h3>
-            <p>${p.shortDescription}</p>
-            <span class="price">$${p.price}</span>
-          </div>
-        </a>`;
-    });
+
+    async function loadFeatured() {
+      var grid = document.getElementById('featuredGrid');
+      try {
+        var res  = await fetch(WORKER_URL + '/get-catalog');
+        var data = await res.json();
+        if (!Array.isArray(data) || !data.length) throw new Error('empty');
+        grid.innerHTML = '';
+        data.forEach(function(duck) {
+          var img   = DUCK_IMAGES[duck.id] || 'Gerald.svg';
+          var desc  = DUCK_DESC[duck.id]   || 'A very special duck.';
+          var price = duck.minPrice ? 'From $' + duck.minPrice.toFixed(2) : '';
+          grid.innerHTML += '<a href="product.html?id=' + duck.id + '" class="product-card">'
+            + '<div class="card-img"><img src="' + img + '" alt="' + duck.name + '" /></div>'
+            + '<div class="card-info"><h3>' + duck.name + '</h3><p>' + desc + '</p>'
+            + '<span class="price">' + price + '</span></div></a>';
+        });
+      } catch(e) {
+        grid.innerHTML = '';
+        products.forEach(function(p) {
+          grid.innerHTML += '<a href="product.html?id=' + p.id + '" class="product-card">'
+            + '<div class="card-img"><img src="' + p.image + '" alt="' + p.name + '" /></div>'
+            + '<div class="card-info"><h3>' + p.name + '</h3><p>' + p.shortDescription + '</p>'
+            + '<span class="price">From $' + p.price + '</span></div></a>';
+        });
+      }
+    }
+    loadFeatured();
   </script>
 </body>
 </html>

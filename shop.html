@@ -16,7 +16,7 @@
       <span>Duck & Cover</span>
     </a>
     <div class="nav-links">
-      <a href="shop.html">Shop</a>
+      <a href="shop.html" class="active">Shop</a>
       <a href="about.html">About</a>
     </div>
     <button class="nav-toggle" onclick="toggleNav()">☰</button>
@@ -37,7 +37,11 @@
   <section class="shop-section">
     <div class="container">
       <div id="adminBar"></div>
-      <div class="product-grid" id="shopGrid"></div>
+      <div class="product-grid" id="shopGrid">
+        <div style="grid-column:1/-1; text-align:center; color:var(--text-light); padding:3rem 0; font-family:var(--font-display);">
+          Loading the flock...
+        </div>
+      </div>
     </div>
   </section>
 
@@ -54,6 +58,9 @@
 
   <script src="products.js"></script>
   <script>
+    var WORKER_URL = 'https://duck-and-cover-worker.tdizzzzzzle.workers.dev';
+    var SITE_URL   = 'https://tdizzzzzzle-bit.github.io/ducked-out';
+
     document.getElementById('year').textContent = new Date().getFullYear();
 
     function toggleNav() {
@@ -63,31 +70,82 @@
     var urlParams = new URLSearchParams(window.location.search);
     var IS_ADMIN  = urlParams.get('admin') === 'quack';
 
-    // Admin bar
     if (IS_ADMIN) {
       document.getElementById('adminBar').innerHTML =
         '<div class="shop-admin-bar">'
         + '<span class="shop-admin-label">🛠 Admin Mode</span>'
-        + '<a href="create-product.html?admin=quack" class="admin-export" style="display:inline-block;text-decoration:none;">+ Add New Duck</a>'
+        + '<a href="create-product.html?admin=quack" class="admin-export" style="display:inline-block;text-decoration:none;margin-right:0.5rem;">+ Add New Duck</a>'
+        + '<a href="price-manager.html?admin=quack" class="admin-export" style="display:inline-block;text-decoration:none;background:var(--orange);">💰 Price Manager</a>'
         + '</div>';
     }
 
-    // Product grid
-    var grid = document.getElementById('shopGrid');
-    products.forEach(function(p) {
-      var link = IS_ADMIN
-        ? 'product.html?id=' + p.id + '&admin=quack'
-        : 'product.html?id=' + p.id;
-      grid.innerHTML +=
-        '<a href="' + link + '" class="product-card">'
-        + '<div class="card-img"><img src="' + p.image + '" alt="' + p.name + '" /></div>'
-        + '<div class="card-info">'
-        + '<h3>' + p.name + '</h3>'
-        + '<p>' + p.shortDescription + '</p>'
-        + '<span class="price">$' + p.price + '</span>'
-        + '</div>'
-        + '</a>';
-    });
+    // Known duck images — fallback to Printful thumbnail if not found
+    var DUCK_IMAGES = {
+      gerald:      'Gerald.svg',
+      bernard:     'Bernard.svg',
+      sid:         'DuckCream.svg',
+      bartholomew: 'Bartholomew.svg',
+      toby:        'Toby.svg',
+    };
+
+    // Known descriptions — fallback to generic if not found
+    var DUCK_DESC = {
+      gerald:      'Roller skates. Party hat. Zero explanation.',
+      bernard:     'A Hork, a Duorse, and Nigel.',
+      sid:         'Cold snack, says quack.',
+      bartholomew: 'Herein flies Bartholomew. Thou art warned.',
+      toby:        'WHYYYY!?!',
+    };
+
+    async function loadShop() {
+      var grid = document.getElementById('shopGrid');
+      try {
+        var res  = await fetch(WORKER_URL + '/get-catalog');
+        var data = await res.json();
+
+        if (!data.length) {
+          grid.innerHTML = '<p style="grid-column:1/-1; text-align:center;">No products found.</p>';
+          return;
+        }
+
+        grid.innerHTML = '';
+        data.forEach(function(duck) {
+          var image = DUCK_IMAGES[duck.id] || duck.thumbnail;
+          var desc  = DUCK_DESC[duck.id]   || 'A very special duck.';
+          var price = duck.minPrice ? 'From $' + duck.minPrice.toFixed(2) : '';
+          var link  = 'product.html?id=' + duck.id + (IS_ADMIN ? '&admin=quack' : '');
+
+          grid.innerHTML +=
+            '<a href="' + link + '" class="product-card">'
+            + '<div class="card-img"><img src="' + image + '" alt="' + duck.name + '" /></div>'
+            + '<div class="card-info">'
+            + '<h3>' + duck.name + '</h3>'
+            + '<p>' + desc + '</p>'
+            + '<span class="price">' + price + '</span>'
+            + '</div>'
+            + '</a>';
+        });
+
+      } catch (err) {
+        // Fallback to products.js if Worker fails
+        console.log('Falling back to products.js:', err.message);
+        grid.innerHTML = '';
+        products.forEach(function(p) {
+          var link = 'product.html?id=' + p.id + (IS_ADMIN ? '&admin=quack' : '');
+          grid.innerHTML +=
+            '<a href="' + link + '" class="product-card">'
+            + '<div class="card-img"><img src="' + p.image + '" alt="' + p.name + '" /></div>'
+            + '<div class="card-info">'
+            + '<h3>' + p.name + '</h3>'
+            + '<p>' + p.shortDescription + '</p>'
+            + '<span class="price">From $' + p.price + '</span>'
+            + '</div>'
+            + '</a>';
+        });
+      }
+    }
+
+    loadShop();
   </script>
 </body>
 </html>

@@ -72,42 +72,86 @@
     var uploadedFileName = '';
 
     const SHIRT_COLORS = [
-      { name: 'White',                hex: '#FFFFFF' },
-      { name: 'Natural',              hex: '#F2EDD7' },
-      { name: 'Soft Cream',           hex: '#FFF5CC' },
-      { name: 'Athletic Heather',     hex: '#B0AEA8' },
-      { name: 'Dark Grey Heather',    hex: '#464646' },
-      { name: 'Black',                hex: '#1C1C1C' },
-      { name: 'Soft Pink',            hex: '#F4A0B0' },
-      { name: 'Pink',                 hex: '#F9C5C9' },
-      { name: 'Heather Orchid',       hex: '#A85CA0' },
-      { name: 'Berry',                hex: '#7B1240' },
-      { name: 'Cardinal',             hex: '#BC1010' },
-      { name: 'Heather Red',          hex: '#CC3333' },
-      { name: 'Red',                  hex: '#CC1818' },
-      { name: 'Maroon',               hex: '#6B0F1A' },
-      { name: 'Orange',               hex: '#FF6600' },
-      { name: 'Mustard',              hex: '#DFC96A' },
-      { name: 'Gold',                 hex: '#E8A820' },
-      { name: 'Heather Mint',         hex: '#AAE8C0' },
-      { name: 'Kelly',                hex: '#009944' },
-      { name: 'Aqua',                 hex: '#00C8C8' },
-      { name: 'Teal',                 hex: '#2E7D60' },
-      { name: 'Forest',               hex: '#2D5A27' },
-      { name: 'Heather Forest',       hex: '#4A6A4A' },
-      { name: 'Military Green',       hex: '#506028' },
-      { name: 'Olive',                hex: '#6B7A38' },
-      { name: 'Light Blue',           hex: '#6EB4D8' },
-      { name: 'Steel Blue',           hex: '#4A7CA8' },
-      { name: 'True Royal',           hex: '#2850A0' },
-      { name: 'Heather True Royal',   hex: '#3A5EA0' },
-      { name: 'Heather Navy',         hex: '#2C3C60' },
-      { name: 'Heather Midnight Navy',hex: '#141E32' },
-      { name: 'Navy',                 hex: '#1A2848' },
-      { name: 'Lilac',                hex: '#C098C8' },
-      { name: 'Team Purple',          hex: '#5020A0' },
-      { name: 'Tan',                  hex: '#C8B08C' },
-      { name: 'Brown',                hex: '#8C6030' },
+      // Whites & Naturals
+      { name: 'White',                   hex: '#FFFFFF' },
+      { name: 'Soft Cream',              hex: '#FFF5CC' },
+      { name: 'Pebble',                  hex: '#C8B08C' },
+      { name: 'Tan',                     hex: '#C8A882' },
+      // Greys
+      { name: 'Athletic Heather',        hex: '#B0AEA8' },
+      { name: 'Heather Slate',           hex: '#8A9098' },
+      { name: 'Dark Grey',               hex: '#5A5A5A' },
+      { name: 'Dark Grey Heather',       hex: '#464646' },
+      { name: 'Asphalt',                 hex: '#3C3C3C' },
+      // Blacks
+      { name: 'Vintage Black',           hex: '#2A2A2A' },
+      { name: 'Black Heather',           hex: '#242424' },
+      { name: 'Black',                   hex: '#1C1C1C' },
+      { name: 'Oxblood Black',           hex: '#1A0A0A' },
+      // Pinks & Reds
+      { name: 'Heather Prism Peach',     hex: '#F8C8B0' },
+      { name: 'Charity Pink',            hex: '#F4B0C0' },
+      { name: 'Pink',                    hex: '#F2A0B8' },
+      { name: 'Mauve',                   hex: '#C89898' },
+      { name: 'Heather Mauve',           hex: '#C08888' },
+      { name: 'Heather Orchid',          hex: '#A85CA0' },
+      { name: 'Heather Raspberry',       hex: '#C03060' },
+      { name: 'Heather Red',             hex: '#CC3333' },
+      { name: 'Red',                     hex: '#CC1818' },
+      { name: 'Cardinal',                hex: '#BC1010' },
+      { name: 'Maroon',                  hex: '#6B0F1A' },
+      { name: 'Berry',                   hex: '#7B1240' },
+      // Oranges & Yellows
+      { name: 'Burnt Orange',            hex: '#C04818' },
+      { name: 'Autumn',                  hex: '#C06020' },
+      { name: 'Heather Autumn',          hex: '#B87040' },
+      { name: 'Orange',                  hex: '#FF6600' },
+      { name: 'Heather Orange',          hex: '#E07030' },
+      { name: 'Mustard',                 hex: '#DFC96A' },
+      { name: 'Heather Yellow Gold',     hex: '#D4A820' },
+      { name: 'Gold',                    hex: '#E8A820' },
+      // Greens
+      { name: 'Heather Prism Mint',      hex: '#AAE8C0' },
+      { name: 'Heather Grass Green',     hex: '#7AAA60' },
+      { name: 'Sage',                    hex: '#90A880' },
+      { name: 'Heather Emerald',         hex: '#209060' },
+      { name: 'Leaf',                    hex: '#409840' },
+      { name: 'Heather Kelly',           hex: '#208840' },
+      { name: 'Kelly',                   hex: '#009944' },
+      { name: 'Heather Forest',          hex: '#4A6A4A' },
+      { name: 'Forest',                  hex: '#2D5A27' },
+      { name: 'Heather Olive',           hex: '#6A7850' },
+      { name: 'Olive',                   hex: '#5A6830' },
+      { name: 'Army',                    hex: '#4A5030' },
+      { name: 'Military Green',          hex: '#506028' },
+      // Blues & Teals
+      { name: 'Heather Aqua',            hex: '#80D0D0' },
+      { name: 'Aqua',                    hex: '#00C8C8' },
+      { name: 'Turquoise',               hex: '#30B0C0' },
+      { name: 'Teal',                    hex: '#2E7D60' },
+      { name: 'Heather Deep Teal',       hex: '#207060' },
+      { name: 'Heather Prism Mint',      hex: '#90D8C0' },
+      { name: 'Light Blue',              hex: '#8EC9E8' },
+      { name: 'Baby Blue',               hex: '#A0C8E8' },
+      { name: 'Ocean Blue',              hex: '#3090C8' },
+      { name: 'Heather Columbia Blue',   hex: '#6898B8' },
+      { name: 'Heather Carolina Blue',   hex: '#5888B0' },
+      { name: 'Steel Blue',              hex: '#4A7CA8' },
+      { name: 'Heather True Royal',      hex: '#3A5EA0' },
+      { name: 'True Royal',              hex: '#2850A0' },
+      { name: 'Heather Navy',            hex: '#2C3C60' },
+      { name: 'Heather Midnight Navy',   hex: '#141E32' },
+      { name: 'Navy',                    hex: '#1A2848' },
+      // Purples
+      { name: 'Heather Prism Lilac',     hex: '#C0A8D8' },
+      { name: 'Lilac',                   hex: '#C098C8' },
+      { name: 'Heather Team Purple',     hex: '#7050A0' },
+      { name: 'Team Purple',             hex: '#5020A0' },
+      // Browns
+      { name: 'Heather Clay',            hex: '#C09070' },
+      { name: 'Toast',                   hex: '#C89060' },
+      { name: 'Brown',                   hex: '#8C6030' },
+      { name: 'Heather Brown',           hex: '#9A7050' },
     ];
 
     var MODELS = {
@@ -186,6 +230,7 @@
         s.classList.toggle('active', s.dataset.hex === hex);
       });
       renderMockup(hex, currentHeather);
+      updateSizeAvailability();
     }
 
     function setModel(key) {
@@ -203,6 +248,63 @@
       });
       var note = document.getElementById('buyNote');
       if (note) note.textContent = size + ' selected. Ready to checkout.';
+    }
+
+    function isAvailable(colorName, size) {
+      if (!colorName) return true; // no color selected yet
+      if (Object.keys(stockData).length === 0) return true; // stock not loaded yet
+      var key = colorName + ' / ' + size;
+      // If key exists in stockData, use it; otherwise assume available
+      return key in stockData ? stockData[key] : true;
+    }
+
+    function isColorAvailable(colorName) {
+      if (Object.keys(stockData).length === 0) return true;
+      var sizes = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL'];
+      // Color is available if at least one size is available
+      return sizes.some(function(s) {
+        var key = colorName + ' / ' + s;
+        return !(key in stockData) || stockData[key];
+      });
+    }
+
+    function updateSizeAvailability() {
+      var colorName = document.getElementById('colorLabel')?.textContent;
+      document.querySelectorAll('.size-btn').forEach(function(btn) {
+        var size = btn.dataset.size;
+        var avail = isAvailable(colorName, size);
+        btn.disabled = !avail;
+        btn.style.opacity = avail ? '1' : '0.35';
+        btn.style.textDecoration = avail ? 'none' : 'line-through';
+        btn.title = avail ? '' : 'Out of stock';
+        // Deselect if current selection becomes unavailable
+        if (!avail && selectedSize === size) {
+          selectedSize = '';
+          btn.classList.remove('active');
+        }
+      });
+    }
+
+    function updateColorAvailability() {
+      document.querySelectorAll('.color-swatch').forEach(function(btn) {
+        var colorName = btn.title;
+        var avail = isColorAvailable(colorName);
+        btn.disabled = !avail;
+        btn.style.opacity = avail ? '1' : '0.3';
+        btn.style.cursor = avail ? 'pointer' : 'not-allowed';
+        if (!avail) btn.title = colorName + ' (out of stock)';
+      });
+    }
+
+    async function loadStock(productId) {
+      try {
+        var res = await fetch(WORKER_URL + '/get-stock?productId=' + productId);
+        stockData = await res.json();
+        updateColorAvailability();
+        updateSizeAvailability();
+      } catch (err) {
+        console.log('Stock check failed, assuming all available');
+      }
     }
 
     function updateDesign() {
@@ -313,6 +415,7 @@
     }
 
     var WORKER_URL = 'https://duck-and-cover-worker.tdizzzzzzle.workers.dev';
+    var stockData = {}; // populated after page loads
 
     async function handleBuyNow() {
       // Validate size selected
@@ -512,6 +615,9 @@
         + '</div>';
 
       if (imagesReady >= 2) renderMockup('#FFFFFF');
+
+      // Load stock availability in background
+      loadStock(product.id);
 
       var relGrid = document.getElementById('relatedGrid');
       products.forEach(function(p) {

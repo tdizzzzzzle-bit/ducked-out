@@ -38,8 +38,9 @@
     <div class="container">
       <div id="adminBar"></div>
       <div class="product-grid" id="shopGrid">
-        <div style="grid-column:1/-1; text-align:center; color:var(--text-light); padding:3rem 0; font-family:var(--font-display);">
-          Loading the flock...
+        <div style="grid-column:1/-1; text-align:center; padding:3rem 0;">
+          <img src="Gerald.gif" style="height:80px;" alt="Loading..." />
+          <div style="font-family:var(--font-display); color:var(--text-light); margin-top:0.5rem;">Loading the flock...</div>
         </div>
       </div>
     </div>
@@ -108,6 +109,13 @@
           return;
         }
 
+        var ORDER = ['gerald','bernard','sid','bartholomew','toby'];
+        data.sort(function(a,b){
+          var ai=ORDER.indexOf(a.id), bi=ORDER.indexOf(b.id);
+          if(ai===-1&&bi===-1) return a.name.localeCompare(b.name);
+          if(ai===-1) return 1; if(bi===-1) return -1;
+          return ai-bi;
+        });
         grid.innerHTML = '';
         data.forEach(function(duck) {
           var image = DUCK_IMAGES[duck.id] || duck.thumbnail;

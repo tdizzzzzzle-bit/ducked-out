@@ -143,7 +143,7 @@
       { name: 'Mauve', hex: '#a36d6a' },
       { name: 'Heather Prism Lilac', hex: '#c7a1b2' },
       { name: 'Lilac', hex: '#d1acce' },
-      { name: 'Heather Mauve', hex: '#b07e7b' },
+      { name: 'Heather Mauve', hex: '#a36d6a' },
       { name: 'Heather Team Purple', hex: '#7d55c7' },
       { name: 'Team Purple', hex: '#2e1a47' },
       // Browns & Tans
@@ -205,7 +205,7 @@
         var b = (d[i] + d[i+1] + d[i+2]) / (255 * 3);
         if (heather) {
           // Add random fiber noise to simulate heathered fabric
-          b = b + (Math.random() - 0.5) * 0.20;
+          b = b + (Math.random() - 0.5) * 0.40;
           b = Math.max(0, Math.min(1, b));
         }
         d[i]   = Math.min(255, Math.round(rgb[0] * b));
@@ -230,6 +230,7 @@
       });
       renderMockup(hex, currentHeather);
       updateSizeAvailability();
+      updatePrice();
     }
 
     function setModel(key) {
@@ -245,25 +246,23 @@
       document.querySelectorAll('.size-btn').forEach(function(b) {
         b.classList.toggle('active', b.dataset.size === size);
       });
-      var note = document.getElementById('buyNote');
-      if (note) note.textContent = size + ' selected. Ready to checkout.';
+      updatePrice();
     }
 
     function isAvailable(colorName, size) {
-      if (!colorName) return true; // no color selected yet
-      if (Object.keys(stockData).length === 0) return true; // stock not loaded yet
+      if (!colorName) return true;
+      if (Object.keys(stockData).length === 0) return true;
       var key = colorName + ' / ' + size;
-      // If key exists in stockData, use it; otherwise assume available
-      return key in stockData ? stockData[key] : true;
+      if (!(key in stockData)) return true;
+      return stockData[key].available !== false;
     }
 
     function isColorAvailable(colorName) {
       if (Object.keys(stockData).length === 0) return true;
       var sizes = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL'];
-      // Color is available if at least one size is available
       return sizes.some(function(s) {
         var key = colorName + ' / ' + s;
-        return !(key in stockData) || stockData[key];
+        return !(key in stockData) || stockData[key].available !== false;
       });
     }
 
@@ -301,8 +300,26 @@
         stockData = await res.json();
         updateColorAvailability();
         updateSizeAvailability();
+        updatePrice();
       } catch (err) {
         console.log('Stock check failed, assuming all available');
+      }
+    }
+
+    function getPrice() {
+      var colorName = document.getElementById('colorLabel') ? document.getElementById('colorLabel').textContent : '';
+      if (!colorName || colorName === 'White' && Object.keys(stockData).length === 0) return null;
+      if (!selectedSize) return null;
+      var key = colorName + ' / ' + selectedSize;
+      return stockData[key] ? stockData[key].price : null;
+    }
+
+    function updatePrice() {
+      var priceEl = document.getElementById('productPriceDisplay');
+      if (!priceEl) return;
+      var price = getPrice();
+      if (price) {
+        priceEl.textContent = '$' + price.toFixed(2);
       }
     }
 
@@ -448,7 +465,7 @@
             color:       currentColor,
             colorName:   document.getElementById('colorLabel').textContent,
             size:        selectedSize,
-            price:       product.price,
+            price:       getPrice() || product.price,
           }),
         });
 
@@ -585,7 +602,7 @@
         // Right: product info
         + '<div class="product-detail-info">'
         + '<h1>' + product.name + '</h1>'
-        + '<div class="product-price">$' + product.price + '</div>'
+        + '<div class="product-price" id="productPriceDisplay">$' + product.price + '</div>'
         + '<div class="size-selector">'
         + '<div class="size-label">Size</div>'
         + '<div class="size-btns">'
@@ -602,7 +619,15 @@
         + '<div class="color-picker-label">Shirt Color — <span id="colorLabel">White</span></div>'
         + '<div class="color-swatches">' + swatchHTML + '</div>'
         + '</div>'
+        + '<div class="product-details-box">'
+        + '<div class="detail-row">→ Hand-drawn original design</div>'
+        + '<div class="detail-row">→ DTF transfer, pressed in-house</div>'
+        + '<div class="detail-row">→ Bella+Canvas 3001 tee</div>'
+        + '<div class="detail-row">→ Sizes: S, M, L, XL, 2XL</div>'
+        + '</div>'
         + '<button id="buyBtn" class="btn btn-buy" onclick="handleBuyNow()">Buy Now →</button>'
+        + '<p class="buy-note" id="buyNote">Select a color and size, then click Buy Now. You\'ll be taken to Stripe\'s secure checkout.</p>'
+        + '</div>'
         + '</div>';
 
       if (imagesReady >= 2) renderMockup('#FFFFFF');

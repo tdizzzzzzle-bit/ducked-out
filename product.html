@@ -249,6 +249,8 @@
     // Printful ghost shirt — public CDN, no auth needed
     // Printful catalog product -> ghost mockup + print area (both 3000x3000 canvases).
     // print area is stored as % of canvas so the design lands correctly on any garment.
+    // Warm cache of already-resolved garments. Anything not in here yet
+    // gets fetched from /get-template on first use and cached here after.
     var GARMENTS = {
       71: {  // Bella+Canvas 3001 (unisex)
         ghost: 'https://files.cdn.printful.com/m/57-bc3001/medium/ghost/front/05_bc3001_ghost_front_base_whitebg.png?v=1753256383',
@@ -266,6 +268,25 @@
       }
     };
     var DEFAULT_AREA = GARMENTS[71].area;
+
+    async function resolveGarment(catalogId) {
+      if (!catalogId) return null;
+      if (GARMENTS[catalogId]) return GARMENTS[catalogId];
+      try {
+        var res  = await fetch('https://duck-and-cover-worker.tdizzzzzzle.workers.dev/get-template?productId=' + catalogId);
+        var data = await res.json();
+        if (!data.hasGhost || !data.ghost) {
+          console.warn('[garment] catalogId ' + catalogId + ' has no ghost mockup on Printful — no interactive colour changer for this product.');
+          return null;
+        }
+        GARMENTS[catalogId] = { ghost: data.ghost, area: data.area };
+        console.log('[garment] resolved catalogId ' + catalogId + ' from Printful (new — now cached)');
+        return GARMENTS[catalogId];
+      } catch (err) {
+        console.error('[garment] failed to resolve catalogId ' + catalogId + ':', err.message);
+        return null;
+      }
+    }
 
     var TIER_LABELS = { M: "Men's", W: "Women's", K: "Kids'", Y: "Youth" };
 
@@ -583,7 +604,7 @@
       design.style.top   = ((area.top  + area.height * (y / 100)) * 100) + '%';
     }
 
-    function switchGroup(key) {
+    async function switchGroup(key) {
       if (!stockGroups[key]) return;
       currentGroup = key;
       var g = stockGroups[key];
@@ -594,20 +615,14 @@
 
       stockData = g.stock;
 
-      // Resolve this garment's ghost mockup. catalogId comes from Printful's
-      // sync_variant.product.product_id — if that ever fails to match a
-      // configured GARMENTS entry, fall back by tier instead of silently
-      // leaving the previous garment's shirt on screen.
-      var garment = GARMENTS[g.catalogId];
+      // Resolve this garment's ghost mockup — cache hit is instant, cache
+      // miss asks Printful via the Worker. If this garment has no ghost at
+      // all (e.g. a hat), keep whatever mockup is already on screen and log
+      // it plainly rather than silently showing the wrong shirt shape.
+      var garment = await resolveGarment(g.catalogId);
       if (!garment) {
-        var fallbackId = 71;
-        garment = GARMENTS[fallbackId];
-        console.warn('[garment] no GARMENTS entry for catalogId=' + g.catalogId +
-                      ' (group "' + key + '"), falling back to ' + fallbackId);
+        console.warn('[garment] no mockup available for group "' + key + '" (catalogId ' + g.catalogId + ') — leaving current mockup as-is.');
       } else {
-        console.log('[garment] group "' + key + '" -> catalogId ' + g.catalogId);
-      }
-      if (garment) {
         ghostMode = null;   // re-detect cutout/tint for this garment's ghost
         shirtImg.src = proxied(garment.ghost);
       }

@@ -122,10 +122,11 @@
     };
 
     // Printful ghost shirt — public CDN, no auth needed
-    var GHOST_URL = 'https://files.cdn.printful.com/m/57-bc3001/medium/ghost/front/05_bc3001_ghost_front_base_whitebg.png';
+    // Isolated shirt layer (transparent bg) + arms layer behind it
     var shirtImg = new Image();
-    shirtImg.crossOrigin = 'anonymous';
-    shirtImg.src = GHOST_URL;
+    var armsImg  = new Image();
+    shirtImg.src = 'model_shirt.png';
+    armsImg.src  = 'model_arms.png';
 
     var currentColor   = '#211e16';
     var currentHeather = false;
@@ -137,11 +138,17 @@
 
     function renderMockup(hex, heather) {
       var canvas = document.getElementById('shirtCanvas');
-      if (!canvas || !shirtImg.naturalWidth) return;
+      if (!canvas || !armsImg.naturalWidth) return;
       var ctx = canvas.getContext('2d');
-      canvas.width  = shirtImg.naturalWidth;
-      canvas.height = shirtImg.naturalHeight;
+      canvas.width  = armsImg.naturalWidth;
+      canvas.height = armsImg.naturalHeight;
+
+      // 1. Arms/person behind
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(armsImg, 0, 0, canvas.width, canvas.height);
+
+      // 2. Tint the isolated shirt layer — every visible pixel is shirt,
+      //    so no background detection is needed.
       var off = document.createElement('canvas');
       off.width  = shirtImg.naturalWidth;
       off.height = shirtImg.naturalHeight;
@@ -151,10 +158,9 @@
       var d = imgData.data;
       var rgb = hexToRgb(hex);
       for (var i = 0; i < d.length; i += 4) {
-        if (d[i+3] < 10) continue;
+        if (d[i+3] < 10) continue;              // transparent = not shirt
         var b = (d[i] + d[i+1] + d[i+2]) / (255 * 3);
         if (heather) {
-          // Add random fiber noise to simulate heathered fabric
           b = b + (Math.random() - 0.5) * 0.40;
           b = Math.max(0, Math.min(1, b));
         }
@@ -163,6 +169,8 @@
         d[i+2] = Math.min(255, Math.round(rgb[2] * b));
       }
       offCtx.putImageData(imgData, 0, 0);
+
+      // 3. Recolored shirt on top
       ctx.drawImage(off, 0, 0, canvas.width, canvas.height);
     }
 
@@ -557,12 +565,14 @@
     var imagesReady = 0;
     function imageLoaded() {
       imagesReady++;
-      if (imagesReady >= 1 && document.getElementById('shirtCanvas')) {
+      if (imagesReady >= 2 && document.getElementById('shirtCanvas')) {
         renderMockup(currentColor, currentHeather);
       }
     }
     shirtImg.addEventListener('load', imageLoaded);
+    armsImg.addEventListener('load',  imageLoaded);
     if (shirtImg.complete) imageLoaded();
+    if (armsImg.complete)  imageLoaded();
 
     var product = null;
     for (var i = 0; i < products.length; i++) {

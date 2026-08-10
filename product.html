@@ -74,6 +74,8 @@
 
     // Hex lookup by Printful color name — used to build swatches dynamically from stock data
     const COLOR_HEX = {
+      'Sapphire': '#007ab3',  // from Printful's own swatch, source chart value was corrupted
+
       // Gildan 64000/64000L — full sourced chart, well-formed hexes only
       'Amethyst': '#6c4b94',
       'Antique Cherry Red': '#971b2f',
@@ -248,11 +250,17 @@
     // Printful catalog product -> ghost mockup + print area (both 3000x3000 canvases).
     // print area is stored as % of canvas so the design lands correctly on any garment.
     var GARMENTS = {
-      71: {  // Bella+Canvas 3001
+      71: {  // Bella+Canvas 3001 (unisex)
         ghost: 'https://files.cdn.printful.com/m/57-bc3001/medium/ghost/front/05_bc3001_ghost_front_base_whitebg.png?v=1753256383',
         area:  { left: 1006/3000, top: 530/3000, width: 1010/3000, height: 1346/3000 }
       },
-      849: { // Gildan 64000L women's
+      12: {  // Gildan 64000 (unisex) — confirmed via templates API, this is
+             // what "Gerald T-Shirt W1" is actually built on (product_id: 12)
+        ghost: 'https://files.cdn.printful.com/m/g64000/medium/ghost2/front/05_gildan64000_ghost2_front_base_whitebg.png?v=1776849436',
+        area:  { left: 1001/3000, top: 369/3000, width: 1022/3000, height: 1363/3000 }
+      },
+      849: { // Gildan 64000L (women's cut) — not currently used by any
+             // product, kept in case a true women's-cut item is added later
         ghost: 'https://files.cdn.printful.com/m/Gildan64000L/medium/ghost/front/05_ghost_front_base_whitebg.png?v=1768556071',
         area:  { left: 856/3000, top: 435/3000, width: 1286/3000, height: 1714/3000 }
       }
@@ -592,7 +600,7 @@
       // leaving the previous garment's shirt on screen.
       var garment = GARMENTS[g.catalogId];
       if (!garment) {
-        var fallbackId = (g.tier === 'W') ? 849 : 71;
+        var fallbackId = 71;
         garment = GARMENTS[fallbackId];
         console.warn('[garment] no GARMENTS entry for catalogId=' + g.catalogId +
                       ' (group "' + key + '"), falling back to ' + fallbackId);

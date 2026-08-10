@@ -74,6 +74,14 @@
 
     // Hex lookup by Printful color name — used to build swatches dynamically from stock data
     const COLOR_HEX = {
+      // Gildan 64000/64000L — sourced from official colour chart (well-formed hexes only)
+      'Indigo Blue': '#486d87', 'Heather Navy G': '#333f48', 'Heather Sapphire': '#0076a8',
+      'Heather Cardinal': '#a8324f', 'Cardinal Red': '#8a1538', 'Royal': '#224d8f',
+      'Sport Grey': '#97999b', 'Dark Heather G': '#425563', 'Forest Green G': '#273b33',
+      'Purple': '#464e7e', 'Charcoal G': '#66676c', 'Sand': '#cabfad', 'Natural G': '#e7ceb5',
+      'Daisy': '#fed101', 'Heliconia G': '#db3e79', 'Light Pink G': '#e4c6d4',
+      'Azalea': '#dd74a1', 'Berry G': '#7f2952', 'Kiwi': '#89a84f', 'Ice Grey G': '#d7d2cb',
+
       'Aqua': '#4298b5', 'Army': '#55574c', 'Ash': '#edf1ff',
       'Asphalt': '#6c6864', 'Athletic Heather': '#acb1a6', 'Atlantic': '#113b40',
       'Autumn': '#9c5331', 'Baby Blue': '#83b0c1', 'Berry': '#c3167c',
@@ -148,7 +156,8 @@
     var shirtImg = new Image();
     shirtImg.crossOrigin = 'anonymous';
 
-    var currentColor   = '#211e16';
+    var currentColor     = '#211e16';
+    var currentColorName = 'Black';
     var currentHeather = false;
     var selectedSize   = '';
 
@@ -231,12 +240,13 @@
     }
 
     function setShirtColor(hex, name) {
-      currentColor   = hex;
-      currentHeather = isHeather(name);
+      currentColor     = hex;
+      currentColorName = name;
+      currentHeather   = isHeather(name);
       document.getElementById('colorLabel').textContent = name;
       var swatchCont = document.getElementById('colorSwatchContainer');
       if (swatchCont) swatchCont.querySelectorAll('.color-swatch').forEach(function(s) {
-        s.classList.toggle('active', s.dataset.hex === hex);
+        s.classList.toggle('active', s.dataset.color === name);
       });
       renderMockup(hex, currentHeather);
       updateSizeAvailability();
@@ -332,7 +342,10 @@
 
     var SIZE_ORDER = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL'];
 
+    var missingColors = [];
+
     function buildColorSwatches() {
+      missingColors = [];
       var container = document.getElementById('colorSwatchContainer');
       if (!container || Object.keys(stockData).length === 0) return;
 
@@ -341,7 +354,7 @@
         var parts = key.split(' / ');
         if (parts.length === 2) {
           var name = parts[0];
-          if (!colorSet[name]) colorSet[name] = COLOR_HEX[name] || '#999999';
+          if (!colorSet[name]) colorSet[name] = COLOR_HEX[name] || (missingColors.push(name), '#999999');
         }
       });
 
@@ -376,15 +389,18 @@
           var bright=(r*299+g*587+b*114)/1000;
           var border = bright > 200 ? 'border-color:#C0B8A8;' : '';
           html += '<button class="color-swatch" style="background:' + hex + ';' + border + '"'
-                + ' data-hex="' + hex + '" title="' + name + '"'
+                + ' data-hex="' + hex + '" data-color="' + name + '" title="' + name + '"'
                 + ' onclick="setShirtColor(\'' + hex + '\',\'' + name + '\')">'
                 + '</button>';
         });
 
       container.innerHTML = html;
+      if (missingColors.length) {
+        console.warn('[colors] no hex for: ' + [...new Set(missingColors)].join(', '));
+      }
 
       container.querySelectorAll('.color-swatch').forEach(function(s) {
-        s.classList.toggle('active', s.dataset.hex === currentColor);
+        s.classList.toggle('active', s.dataset.color === currentColorName);
       });
     }
 
@@ -451,16 +467,45 @@
 
       stockData = g.stock;
 
+      // Resolve this garment's ghost mockup. catalogId comes from Printful's
+      // sync_variant.product.product_id — if that ever fails to match a
+      // configured GARMENTS entry, fall back by tier instead of silently
+      // leaving the previous garment's shirt on screen.
       var garment = GARMENTS[g.catalogId];
+      if (!garment) {
+        var fallbackId = (g.tier === 'W') ? 849 : 71;
+        garment = GARMENTS[fallbackId];
+        console.warn('[garment] no GARMENTS entry for catalogId=' + g.catalogId +
+                      ' (group "' + key + '"), falling back to ' + fallbackId);
+      } else {
+        console.log('[garment] group "' + key + '" -> catalogId ' + g.catalogId);
+      }
       if (garment) {
-        ghostMode = null;                 // re-detect for this garment
+        ghostMode = null;   // re-detect cutout/tint for this garment's ghost
         shirtImg.src = proxied(garment.ghost);
       }
 
-      selectedSize = '';
       buildColorSwatches();
       buildSizeButtons();
       updateColorAvailability();
+
+      // Pick a sensible default colour for this tab: White or Black if
+      // present, else whatever loaded first. Goes through setShirtColor so
+      // currentColor/currentColorName/highlight state all stay in sync.
+      var names = Object.keys(g.stock).map(function(k){ return k.split(' / ')[0]; });
+      names = names.filter(function(n, i){ return names.indexOf(n) === i; });
+      var pick = names.indexOf('White') !== -1 ? 'White'
+               : names.indexOf('Black') !== -1 ? 'Black'
+               : names[0];
+      if (pick) {
+        var hex = COLOR_HEX[pick] || currentColor;
+        setShirtColor(hex, pick);
+      }
+
+      selectedSize = 'M';
+      var sizeNames = Object.keys(g.stock).map(function(k){ return k.split(' / ')[1]; });
+      if (sizeNames.indexOf('M') === -1 && sizeNames.length) selectedSize = sizeNames[0];
+      updateSizeAvailability();
       updatePrice();
 
       var pl = (product.placement && typeof product.placement.size !== 'undefined')
@@ -807,7 +852,7 @@
       // Render shirt with default white
       currentColor = '#f4f5f0';
       currentHeather = false;
-      if (imagesReady >= 2) renderMockup('#f4f5f0', false);
+      // initial paint happens once switchGroup() runs after stock loads
 
       // Update description and design image from descriptions.txt
       loadDescriptions().then(function(descs) {
@@ -819,22 +864,8 @@
         }
       });
 
-      // Default select White / M
-      selectedSize = 'M';
-      currentColor = '#f4f5f0';
-      currentHeather = false;
-      setTimeout(function() {
-        var colorLabel = document.getElementById('colorLabel');
-        if (colorLabel) colorLabel.textContent = 'White';
-        document.querySelectorAll('.color-swatch').forEach(function(s) {
-          s.classList.toggle('active', s.dataset.hex === '#211e16');
-        });
-        document.querySelectorAll('.size-btn').forEach(function(b) {
-          b.classList.toggle('active', b.dataset.size === 'M');
-        });
-      }, 0);
-
-      // Load stock in background, then force price update
+      // Real default selection happens inside switchGroup() once stock
+      // loads, so it always matches whatever colours/sizes actually exist.
       loadStock(product.id);
 
       var relGrid = document.getElementById('relatedGrid');

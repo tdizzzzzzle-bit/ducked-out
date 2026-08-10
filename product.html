@@ -121,6 +121,13 @@
       'Yellow Gold': '#f6d03a',
     };
 
+    // Printful ghost shirt — public CDN, no auth needed
+    // Isolated shirt layer (transparent bg) + arms layer behind it
+    var shirtImg = new Image();
+    var armsImg  = new Image();
+    shirtImg.src = 'model_shirt.png';
+    armsImg.src  = 'model_arms.png';
+
     var currentColor   = '#211e16';
     var currentHeather = false;
     var selectedSize   = '';
@@ -131,26 +138,29 @@
 
     function renderMockup(hex, heather) {
       var canvas = document.getElementById('shirtCanvas');
-      var mImgs  = modelImgs[currentModel];
-      if (!canvas || !mImgs.arms.naturalWidth) return;
+      if (!canvas || !armsImg.naturalWidth) return;
       var ctx = canvas.getContext('2d');
-      canvas.width  = mImgs.arms.naturalWidth;
-      canvas.height = mImgs.arms.naturalHeight;
+      canvas.width  = armsImg.naturalWidth;
+      canvas.height = armsImg.naturalHeight;
+
+      // 1. Arms/person behind
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(mImgs.arms, 0, 0, canvas.width, canvas.height);
+      ctx.drawImage(armsImg, 0, 0, canvas.width, canvas.height);
+
+      // 2. Tint the isolated shirt layer — every visible pixel is shirt,
+      //    so no background detection is needed.
       var off = document.createElement('canvas');
-      off.width  = mImgs.shirt.naturalWidth;
-      off.height = mImgs.shirt.naturalHeight;
+      off.width  = shirtImg.naturalWidth;
+      off.height = shirtImg.naturalHeight;
       var offCtx = off.getContext('2d');
-      offCtx.drawImage(mImgs.shirt, 0, 0);
+      offCtx.drawImage(shirtImg, 0, 0);
       var imgData = offCtx.getImageData(0, 0, off.width, off.height);
       var d = imgData.data;
       var rgb = hexToRgb(hex);
       for (var i = 0; i < d.length; i += 4) {
-        if (d[i+3] < 10) continue;
+        if (d[i+3] < 10) continue;              // transparent = not shirt
         var b = (d[i] + d[i+1] + d[i+2]) / (255 * 3);
         if (heather) {
-          // Add random fiber noise to simulate heathered fabric
           b = b + (Math.random() - 0.5) * 0.40;
           b = Math.max(0, Math.min(1, b));
         }
@@ -159,6 +169,8 @@
         d[i+2] = Math.min(255, Math.round(rgb[2] * b));
       }
       offCtx.putImageData(imgData, 0, 0);
+
+      // 3. Recolored shirt on top
       ctx.drawImage(off, 0, 0, canvas.width, canvas.height);
     }
 
@@ -553,12 +565,14 @@
     var imagesReady = 0;
     function imageLoaded() {
       imagesReady++;
-      if (imagesReady >= 1 && document.getElementById('shirtCanvas')) {
+      if (imagesReady >= 2 && document.getElementById('shirtCanvas')) {
         renderMockup(currentColor, currentHeather);
       }
     }
     shirtImg.addEventListener('load', imageLoaded);
+    armsImg.addEventListener('load',  imageLoaded);
     if (shirtImg.complete) imageLoaded();
+    if (armsImg.complete)  imageLoaded();
 
     var product = null;
     for (var i = 0; i < products.length; i++) {

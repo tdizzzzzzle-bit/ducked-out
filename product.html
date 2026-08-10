@@ -122,12 +122,31 @@
     };
 
     // Printful ghost shirt — public CDN, no auth needed
-    // Printful ghost mockup, proxied through the Worker so canvas can read it
-    var GHOST_SRC = 'https://files.cdn.printful.com/m/57-bc3001/medium/ghost/front/05_bc3001_ghost_front_base_whitebg.png?v=1753256383';
-    var GHOST_URL = 'https://duck-and-cover-worker.tdizzzzzzle.workers.dev/ghost?url=' + encodeURIComponent(GHOST_SRC);
+    // Printful catalog product -> ghost mockup + print area (both 3000x3000 canvases).
+    // print area is stored as % of canvas so the design lands correctly on any garment.
+    var GARMENTS = {
+      71: {  // Bella+Canvas 3001
+        ghost: 'https://files.cdn.printful.com/m/57-bc3001/medium/ghost/front/05_bc3001_ghost_front_base_whitebg.png?v=1753256383',
+        area:  { left: 1006/3000, top: 530/3000, width: 1010/3000, height: 1346/3000 }
+      },
+      849: { // Gildan 64000L women's
+        ghost: 'https://files.cdn.printful.com/m/Gildan64000L/medium/ghost/front/05_ghost_front_base_whitebg.png?v=1768556071',
+        area:  { left: 856/3000, top: 435/3000, width: 1286/3000, height: 1714/3000 }
+      }
+    };
+    var DEFAULT_AREA = GARMENTS[71].area;
+
+    var TIER_LABELS = { M: "Men's", W: "Women's", K: "Kids'", Y: "Youth" };
+
+    function proxied(url) {
+      return 'https://duck-and-cover-worker.tdizzzzzzle.workers.dev/ghost?url=' + encodeURIComponent(url);
+    }
+
+    var stockGroups  = {};    // key -> { garment, tier, catalogId, stock }
+    var currentGroup = null;  // active tab key
+
     var shirtImg = new Image();
     shirtImg.crossOrigin = 'anonymous';
-    shirtImg.src = GHOST_URL;
 
     var currentColor   = '#211e16';
     var currentHeather = false;
@@ -166,7 +185,7 @@
       var d = imgData.data;
       var rgb = hexToRgb(hex);
 
-      if (!ghostMode) ghostMode = detectGhostMode(d, w, h);
+      if (ghostMode === null) ghostMode = detectGhostMode(d, w, h);
 
       if (ghostMode === 'cutout') {
         // Colour behind, ghost on top: the transparent shirt area shows the
@@ -281,19 +300,20 @@
 
     async function loadStock(productId) {
       try {
-        var res = await fetch(WORKER_URL + '/get-stock?productId=' + productId);
-        stockData = await res.json();
-        updateColorAvailability();
-        buildColorSwatches();
-        buildSizeButtons();
-        // Force price update with current color/size
-        var priceEl = document.getElementById('productPriceDisplay');
-        var key = currentColorName() + ' / ' + selectedSize;
-        if (priceEl && stockData[key] && stockData[key].price) {
-          priceEl.textContent = '$' + stockData[key].price.toFixed(2);
-        }
+        var res  = await fetch(WORKER_URL + '/get-stock?productId=' + productId);
+        var data = await res.json();
+        stockGroups = (data && data.groups) ? data.groups : {};
+
+        var keys = Object.keys(stockGroups);
+        if (!keys.length) { console.warn('[stock] no garment groups returned'); return; }
+
+        buildGarmentTabs();
+
+        // Prefer men's/unisex as the default tab
+        var first = keys.filter(function(k){ return stockGroups[k].tier === 'M'; })[0] || keys[0];
+        switchGroup(first);
       } catch (err) {
-        console.log('Stock check failed, assuming all available');
+        console.log('Stock check failed, assuming all available', err);
       }
     }
 
@@ -407,15 +427,76 @@
       // Otherwise leave as-is (shows default product.price or ~)
     }
 
+    // Places the design within the active garment's print area.
+    // placement {size,x,y} is interpreted as % OF THE PRINT BOX, so a design
+    // tuned on one garment stays correct on the others.
+    function applyDesignPlacement(size, x, y) {
+      var design = document.getElementById('shirtDesign');
+      if (!design) return;
+      var g    = currentGroup && stockGroups[currentGroup];
+      var area = (g && GARMENTS[g.catalogId] && GARMENTS[g.catalogId].area) || DEFAULT_AREA;
+      design.style.width = (area.width  * size) + '%';
+      design.style.left  = ((area.left + area.width  * (x / 100)) * 100) + '%';
+      design.style.top   = ((area.top  + area.height * (y / 100)) * 100) + '%';
+    }
+
+    function switchGroup(key) {
+      if (!stockGroups[key]) return;
+      currentGroup = key;
+      var g = stockGroups[key];
+
+      document.querySelectorAll('.garment-tab').forEach(function(t) {
+        t.classList.toggle('active', t.dataset.group === key);
+      });
+
+      stockData = g.stock;
+
+      var garment = GARMENTS[g.catalogId];
+      if (garment) {
+        ghostMode = null;                 // re-detect for this garment
+        shirtImg.src = proxied(garment.ghost);
+      }
+
+      selectedSize = '';
+      buildColorSwatches();
+      buildSizeButtons();
+      updateColorAvailability();
+      updatePrice();
+
+      var pl = (product.placement && typeof product.placement.size !== 'undefined')
+             ? product.placement : { size: 40, x: 30, y: 35 };
+      applyDesignPlacement(pl.size, pl.x, pl.y);
+    }
+
+    function buildGarmentTabs() {
+      var keys = Object.keys(stockGroups);
+      var el = document.getElementById('garmentTabs');
+      if (!el) return;
+      if (keys.length < 2) { el.innerHTML = ''; return; }   // no tabs for a single garment
+
+      keys.sort(function(a, b) {
+        var order = ['M','W','K','Y'];
+        var ai = order.indexOf(stockGroups[a].tier);
+        var bi = order.indexOf(stockGroups[b].tier);
+        return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
+      });
+
+      el.innerHTML = keys.map(function(k) {
+        var g = stockGroups[k];
+        var tier = TIER_LABELS[g.tier] || g.tier;
+        var label = tier + ' ' + g.garment.replace(/\b\w/g, function(m){ return m.toUpperCase(); });
+        return '<button class="garment-tab" data-group="' + k + '" onclick="switchGroup(\'' + k + '\')">'
+             + label + '</button>';
+      }).join('');
+    }
+
     function updateDesign() {
       var design = document.getElementById('shirtDesign');
       if (!design) return;
       var size = document.getElementById('sliderSize').value;
       var x    = document.getElementById('sliderX').value;
       var y    = document.getElementById('sliderY').value;
-      design.style.width = size + '%';
-      design.style.left  = x + '%';
-      design.style.top   = y + '%';
+      applyDesignPlacement(size, x, y);
       document.getElementById('labelSize').textContent = size + '%';
       document.getElementById('labelX').textContent    = x + '%';
       document.getElementById('labelY').textContent    = y + '%';
@@ -569,6 +650,7 @@
             color:       currentColor,
             colorName:   document.getElementById('colorLabel').textContent,
             size:        selectedSize,
+            variantGroup: currentGroup || '',
             price:       getPrice() || product.price,
           }),
         });
@@ -687,6 +769,7 @@
 
         // Left: mockup + admin controls
         + '<div class="product-detail-img">'
+        + '<div class="garment-tabs" id="garmentTabs"></div>'
         + '<div class="shirt-mockup">'
         + '<canvas id="shirtCanvas" class="shirt-canvas"></canvas>'
         + '<img id="shirtDesign" src="' + product.image + '" alt="' + product.name + '" class="shirt-design"'

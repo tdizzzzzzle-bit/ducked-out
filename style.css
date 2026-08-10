@@ -962,3 +962,29 @@ footer {
   font-size: 1.1rem !important;
   font-weight: 700 !important;
 }
+
+/* ── Garment Tabs ── */
+.garment-tabs {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.85rem;
+}
+.garment-tabs:empty { display: none; }
+.garment-tab {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 0.45rem 1rem;
+  border-radius: 100px;
+  border: 2px solid var(--pond);
+  background: white;
+  color: var(--pond);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.garment-tab:hover { background: var(--cream-dark); }
+.garment-tab.active {
+  background: var(--pond);
+  color: var(--yellow);
+}

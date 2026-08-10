@@ -650,8 +650,14 @@
       updateSizeAvailability();
       updatePrice();
 
-      var pl = (product.placement && typeof product.placement.size !== 'undefined')
-             ? product.placement : { size: 40, x: 30, y: 35 };
+      // Prefer Printful's own stored file position (ground truth for what's
+      // actually printing) over the manual/default fallback.
+      var pl = g.placement
+             || (product.placement && typeof product.placement.size !== 'undefined' ? product.placement : null)
+             || { size: 40, x: 30, y: 35 };
+      console.log('[placement] group "' + key + '" using ' +
+                  (g.placement ? 'Printful file position' : product.placement ? 'products.js override' : 'default') +
+                  ':', pl);
       applyDesignPlacement(pl.size, pl.x, pl.y);
     }
 

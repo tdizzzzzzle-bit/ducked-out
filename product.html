@@ -74,14 +74,129 @@
 
     // Hex lookup by Printful color name — used to build swatches dynamically from stock data
     const COLOR_HEX = {
-      // Gildan 64000/64000L — sourced from official colour chart (well-formed hexes only)
-      'Indigo Blue': '#486d87', 'Heather Navy G': '#333f48', 'Heather Sapphire': '#0076a8',
-      'Heather Cardinal': '#a8324f', 'Cardinal Red': '#8a1538', 'Royal': '#224d8f',
-      'Sport Grey': '#97999b', 'Dark Heather G': '#425563', 'Forest Green G': '#273b33',
-      'Purple': '#464e7e', 'Charcoal G': '#66676c', 'Sand': '#cabfad', 'Natural G': '#e7ceb5',
-      'Daisy': '#fed101', 'Heliconia G': '#db3e79', 'Light Pink G': '#e4c6d4',
-      'Azalea': '#dd74a1', 'Berry G': '#7f2952', 'Kiwi': '#89a84f', 'Ice Grey G': '#d7d2cb',
+      // Gildan 64000/64000L — full sourced chart, well-formed hexes only
+      'Amethyst': '#6c4b94',
+      'Antique Cherry Red': '#971b2f',
+      'Antique Heliconia': '#aa0061',
+      'Antique Irish Green': '#00843d',
+      'Antique Orange': '#b33d26',
+      'Antique Sapphire': '#006a8e',
+      'Ash Grey': '#c8c9c7',
+      'Blackberry': '#221c35',
+      'Blue Dusk': '#253746',
+      'Bright Salmon': '#e5554f',
+      'Brown Savana': '#7a6855',
+      'Cactus': '#788a7a',
+      'Caribbean Blue': '#00a9ce',
+      'Caribbean Mist': '#00a0c4',
+      'Carolina Blue Mist': '#7ba4db',
+      'Cement': '#aeaeae',
+      'Chalky Mint': '#5cb8b2',
+      'Chambray': '#bdd6e6',
+      'Charcoal': '#66676c',
+      'Cherry Red': '#ac2b37',
+      'Cobalt': '#171c8f',
+      'Coral Silk': '#fb637e',
+      'Cornsilk': '#f0ec74',
+      'Dark Chocolate': '#382f2d',
+      'Dark Heather': '#425563',
+      'Dune Mist': '#7a7256',
+      'Dusty Rose': '#e1bbb4',
+      'Electric Green': '#43b02a',
+      'Flo Blue': '#5576d1',
+      'Forest Green': '#273b33',
+      'Galapagos Blue': '#005d6f',
+      'Garnet': '#7d2935',
+      'Graphite Heather': '#707372',
+      'Gravel': '#888b8d',
+      'Gunmetal': '#939694',
+      'Heather Berry': '#994878',
+      'Heather Blue': '#3a5dae',
+      'Heather Bronze': '#c04c36',
+      'Heather Caribbean Blue': '#1ba0c9',
+      'Heather Coral Silk': '#ff808b',
+      'Heather Dark Green': '#3e5d58',
+      'Heather Grey': '#9ea2a2',
+      'Heather Heliconia': '#e24585',
+      'Heather Indigo': '#4d6995',
+      'Heather Irish Green': '#5caa7f',
+      'Heather Maroon': '#7a3a52',
+      'Heather Purple': '#614b79',
+      'Heather Radiant Orchid': '#a15a95',
+      'Heather Royal': '#307fe2',
+      'Heather Seafoam': '#40c1ac',
+      'Heather Sport Dark Maroon': '#651d32',
+      'Heather Sport Dark Navy': '#595478',
+      'Heather Sport Royal': '#1d4f91',
+      'Heather Sport Scarlet Red': '#b83a4b',
+      'Heliconia': '#db3e79',
+      'Ice Grey': '#d7d2cb',
+      'Iris': '#3975b7',
+      'Irish Green': '#00a74a',
+      'Island Reef': '#8fd6bd',
+      'Jade Dome': '#00857d',
+      'Kelly Green': '#00805e',
+      'Kelly Mist': '#0a8f66',
+      'Lagoon Blue': '#4ac3e0',
+      'Legion Blue': '#1f495b',
+      'Light Pink': '#e4c6d4',
+      'Lime': '#92bf55',
+      'Marbled Charcoal': '#5c5d61',
+      'Marbled Galapagos Blue': '#0a6a7c',
+      'Marbled Heliconia': '#c9366c',
+      'Marbled Navy': '#263147',
+      'Marbled Royal': '#2c56a0',
+      'Maroon Mist': '#6d273c',
+      'Meadow': '#046a38',
+      'Metro Blue': '#525aa0',
+      'Mint Green': '#a0cfab',
+      'Moss': '#3d441e',
+      'Navy Mist': '#2c4068',
+      'Neon Blue': '#0c51a3',
+      'Neon Green': '#93da49',
+      'Old Gold': '#c39367',
+      'Orchid': '#c5b4e3',
+      'Paragon': '#948794',
+      'Pfd (Prepared For Dye)': '#ffffff',
+      'Pistachio': '#a9c47f',
+      'Pitch Black': '#101820',
+      'Pitch Black Mist': '#2d2926',
+      'Plumrose': '#c9809e',
+      'Prairie Dust': '#877c62',
+      'Royal Mist': '#456db0',
+      'Rs Sport Grey': '#8a8c8e',
+      'Russet': '#512f2e',
+      'Safety Green': '#c6d219',
+      'Safety Orange': '#e5801c',
+      'Safety Pink': '#e16f8f',
+      'Seafoam': '#487a7b',
+      'Sky': '#71c5e8',
+      'Smoke': '#3d3935',
+      'Sport Dark Green': '#205c40',
+      'Sport Dark Maroon': '#572932',
+      'Sport Dark Navy': '#00263a',
+      'Sport Purple': '#470a68',
+      'Sport Royal': '#002d72',
+      'Sport Scarlet Red': '#ba0c2f',
+      'Stone Blue': '#7e93a7',
+      'Storm Grey': '#898d8d',
+      'Sunset': '#dc6b2f',
+      'Tangerine': '#ff8a3d',
+      'Teal Ice': '#b1e4e3',
+      'Tennessee Orange': '#b65a30',
+      'Terracota': '#e3775e',
+      'Tropical Blue': '#00859b',
+      'True Red': '#bb1237',
+      'Turf Green': '#007a3e',
+      'Tweed': '#4b4f54',
+      'Vegas Gold': '#f4d1a1',
+      'Violet': '#8094dd',
+      'Yellow Haze': '#f5e1a4',
 
+      // Gildan 64000/64000L — sourced from official colour chart (well-formed hexes only)
+      'Indigo Blue': '#486d87', 'Heather Sapphire': '#0076a8',
+      'Heather Cardinal': '#a8324f', 'Cardinal Red': '#8a1538', 'Royal': '#224d8f',
+      'Sport Grey': '#97999b',      'Purple': '#464e7e', 'Sand': '#cabfad',      'Daisy': '#fed101',      'Azalea': '#dd74a1', 'Kiwi': '#89a84f',
       'Aqua': '#4298b5', 'Army': '#55574c', 'Ash': '#edf1ff',
       'Asphalt': '#6c6864', 'Athletic Heather': '#acb1a6', 'Atlantic': '#113b40',
       'Autumn': '#9c5331', 'Baby Blue': '#83b0c1', 'Berry': '#c3167c',
@@ -155,6 +270,7 @@
 
     var shirtImg = new Image();
     shirtImg.crossOrigin = 'anonymous';
+    var loadedGhostSrc = '';  // set only once shirtImg has actually finished loading
 
     var currentColor     = '#211e16';
     var currentColorName = 'Black';
@@ -181,6 +297,9 @@
     function renderMockup(hex, heather) {
       var canvas = document.getElementById('shirtCanvas');
       if (!canvas || !shirtImg.naturalWidth) return;
+      // Guard against painting mid-transition: shirtImg.src was reassigned
+      // for a tab switch but the browser hasn't finished loading it yet.
+      if (shirtImg.src !== loadedGhostSrc) return;
       var w = shirtImg.naturalWidth, h = shirtImg.naturalHeight;
       var ctx = canvas.getContext('2d');
       canvas.width = w; canvas.height = h;
@@ -724,6 +843,7 @@
     var imagesReady = 0;
     function imageLoaded() {
       imagesReady++;
+      loadedGhostSrc = shirtImg.src;   // this exact image is now actually ready to paint
       if (imagesReady >= 1 && document.getElementById('shirtCanvas')) {
         renderMockup(currentColor, currentHeather);
       }

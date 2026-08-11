@@ -357,10 +357,6 @@
       }
     }
 
-    function currentColorName() {
-      var el = document.getElementById('colorLabel');
-      return el ? el.textContent : 'Black';
-    }
 
     function getPrice() {
       var colorName = document.getElementById('colorLabel') ? document.getElementById('colorLabel').textContent : '';
@@ -669,7 +665,6 @@
           body: JSON.stringify({
             productId:   product.id,
             productName: product.name,
-            color:       currentColor,
             colorName:   document.getElementById('colorLabel').textContent,
             size:        selectedSize,
             variantGroup: currentGroup || '',

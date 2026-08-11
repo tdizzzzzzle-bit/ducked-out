@@ -508,7 +508,7 @@
       if (keys.length < 2) { el.innerHTML = ''; return; }   // no tabs for a single garment
 
       keys.sort(function(a, b) {
-        var order = ['M','W','K','Y'];
+        var order = ['U','M','W','K','Y'];
         var ai = order.indexOf(stockGroups[a].tier);
         var bi = order.indexOf(stockGroups[b].tier);
         return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
@@ -516,8 +516,12 @@
 
       el.innerHTML = keys.map(function(k) {
         var g = stockGroups[k];
-        var tier = TIER_LABELS[g.tier] || g.tier;
-        var label = tier + ' ' + g.garment.replace(/\b\w/g, function(m){ return m.toUpperCase(); });
+        var name = g.garment.replace(/\b\w/g, function(m){ return m.toUpperCase(); });
+        // Unisex ("U") gets no gendered prefix — just the pluralized garment
+        // name, e.g. "Hats" instead of "Men's Hat".
+        var label = g.tier === 'U'
+          ? (name.slice(-1).toLowerCase() === 's' ? name : name + 's')
+          : (TIER_LABELS[g.tier] || g.tier) + ' ' + name;
         return '<button class="garment-tab" data-group="' + k + '" onclick="switchGroup(\'' + k + '\')">'
              + label + '</button>';
       }).join('');

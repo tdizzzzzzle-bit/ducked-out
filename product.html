@@ -431,8 +431,8 @@
     }
 
     function buildSizeButtons() {
-      var colorName = document.getElementById('colorLabel') ? document.getElementById('colorLabel').textContent : '';
       var container = document.getElementById('sizeBtns');
+      var wrapper   = document.getElementById('sizeSelector');
       if (!container || Object.keys(stockData).length === 0) return;
 
       // Get all sizes available for ANY color (so buttons don't disappear on color change)
@@ -441,6 +441,15 @@
         var parts = key.split(' / ');
         if (parts.length === 2) allSizes.add(parts[1]);
       });
+
+      // Sizeless accessories (hats, totes): no selector to show, but
+      // checkout still needs a concrete size value.
+      if (allSizes.size === 1 && allSizes.has('One Size')) {
+        if (wrapper) wrapper.style.display = 'none';
+        selectedSize = 'One Size';
+        return;
+      }
+      if (wrapper) wrapper.style.display = '';
 
       // Sort in standard order
       var sorted = SIZE_ORDER.filter(function(s) { return allSizes.has(s); });
@@ -494,9 +503,13 @@
                : names[0];
       if (pick) setShirtColor(COLOR_HEX[pick] || '#999999', pick);
 
-      selectedSize = 'M';
       var sizeNames = Object.keys(g.stock).map(function(k){ return k.split(' / ')[1]; });
-      if (sizeNames.indexOf('M') === -1 && sizeNames.length) selectedSize = sizeNames[0];
+      if (sizeNames.length && sizeNames.every(function(s){ return s === 'One Size'; })) {
+        selectedSize = 'One Size';  // sizeless accessory — buildSizeButtons() already hid the selector
+      } else {
+        selectedSize = 'M';
+        if (sizeNames.indexOf('M') === -1 && sizeNames.length) selectedSize = sizeNames[0];
+      }
       updateSizeAvailability();
       updatePrice();
     }
@@ -776,7 +789,7 @@
         + '<div class="product-detail-info">'
         + '<h1>' + product.name + '</h1>'
         + '<div class="product-price" id="productPriceDisplay">~</div>'
-        + '<div class="size-selector">'
+        + '<div class="size-selector" id="sizeSelector">'
         + '<div class="size-label">Size</div>'
         + '<div class="size-btns" id="sizeBtns">'
         + '<button class="size-btn" data-size="XS" onclick="setSize(\'XS\')">XS</button>'

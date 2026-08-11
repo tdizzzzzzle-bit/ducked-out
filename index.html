@@ -136,16 +136,14 @@
           var price = duck.minPrice ? 'From $' + duck.minPrice.toFixed(2) : '';
           grid.innerHTML += '<a href="product.html?id=' + duck.id + '" class="product-card">'
             + '<div class="card-img"><img src="' + img + '" alt="' + duck.name + '" /></div>'
-            + '<div class="card-info"><h3>' + duck.name + '</h3><p>' + desc + '</p>'
-            + '<span class="price">' + price + '</span></div></a>';
+            + '<div class="card-info"><h3>' + duck.name + '</h3><p>' + desc + '</p></div></a>';
         });
       } catch(e) {
         grid.innerHTML = '';
         products.forEach(function(p) {
           grid.innerHTML += '<a href="product.html?id=' + p.id + '" class="product-card">'
             + '<div class="card-img"><img src="' + p.image + '" alt="' + p.name + '" /></div>'
-            + '<div class="card-info"><h3>' + p.name + '</h3><p>' + p.shortDescription + '</p>'
-            + '<span class="price">From $' + p.price + '</span></div></a>';
+            + '<div class="card-info"><h3>' + p.name + '</h3><p>' + p.shortDescription + '</p></div></a>';
         });
       }
     }

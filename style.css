@@ -554,16 +554,6 @@ footer {
   display: block;
 }
 
-.shirt-design {
-  position: absolute;
-  top: 18%;
-  left: 25%;
-  width: 50%;
-  z-index: 3;
-  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.25));
-  pointer-events: none;
-}
-
 /* ── Dev Slider ── */
 .dev-slider {
   margin-top: 1rem;

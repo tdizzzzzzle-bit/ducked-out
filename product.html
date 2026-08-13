@@ -681,7 +681,7 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             productId:   product.id,
-            productName: product.name,
+            productName: displayName,
             colorName:   document.getElementById('colorLabel').textContent,
             size:        selectedSize,
             variantGroup: currentGroup || '',
@@ -721,6 +721,7 @@
       page.innerHTML = '<p>Product not found. <a href="shop.html">Back to shop</a></p>';
     } else {
       document.title = product.name + ' — Duck & Cover';
+      var displayName = product.name;
       var swatchHTML = '';
 
       var adminHTML = '';
@@ -772,7 +773,7 @@
       page.innerHTML =
         '<div class="breadcrumb">'
         + '<a href="' + (IS_ADMIN ? 'shop.html?admin=quack' : 'shop.html') + '">← Shop</a>'
-        + ' / <span>' + product.name + '</span>'
+        + ' / <span id="productNameCrumb">' + product.name + '</span>'
         + '</div>'
         + '<div class="product-detail">'
 
@@ -780,14 +781,14 @@
         + '<div class="product-detail-img">'
         + '<div class="garment-tabs" id="garmentTabs"></div>'
         + '<div class="shirt-mockup">'
-        + '<img id="shirtCanvas" class="shirt-canvas" alt="' + product.name + '" />'
+        + '<img id="shirtCanvas" class="shirt-canvas" alt="' + product.name + '" data-name-target="1" />'
         + '</div>'
         + adminHTML
         + '</div>'
 
         // Right: product info
         + '<div class="product-detail-info">'
-        + '<h1>' + product.name + '</h1>'
+        + '<h1 id="productNameH1">' + product.name + '</h1>'
         + '<div class="product-price" id="productPriceDisplay">~</div>'
         + '<div class="size-selector" id="sizeSelector">'
         + '<div class="size-label">Size</div>'
@@ -813,12 +814,27 @@
 
       // First mockup photo appears once switchGroup() runs after stock loads.
 
-      // Update description from descriptions.txt (image field no longer
-      // needed here — Printful's own photo IS the product image now).
+      // Update description + display name from descriptions.txt.
+      // Runs after the initial synchronous render (same pattern as the
+      // description text) — the page shows the products.js name first,
+      // then swaps in the pretty display name once the txt file loads.
       loadDescriptions().then(function(descs) {
-        if (descs[productId]) {
-          var descEl = document.getElementById('productDescEl');
-          if (descEl && descs[productId].full) descEl.innerHTML = descs[productId].full;
+        var entry = descs[productId];
+        if (!entry) return;
+
+        var descEl = document.getElementById('productDescEl');
+        if (descEl && entry.full) descEl.innerHTML = entry.full;
+
+        if (entry.displayName) {
+          var name = entry.displayName;
+          document.title = name + ' — Duck & Cover';
+          var h1 = document.getElementById('productNameH1');
+          if (h1) h1.textContent = name;
+          var crumb = document.getElementById('productNameCrumb');
+          if (crumb) crumb.textContent = name;
+          var img = document.querySelector('[data-name-target]');
+          if (img) img.alt = name;
+          displayName = name;  // used by handleBuyNow() for the Stripe line item
         }
       });
 

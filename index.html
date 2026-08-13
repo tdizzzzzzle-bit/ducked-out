@@ -133,17 +133,19 @@
         data.forEach(function(duck) {
           var img   = (descs[duck.id] && descs[duck.id].image) || DUCK_IMAGES[duck.id] || duck.thumbnail || 'Gerald.svg';
           var desc  = (descs[duck.id] && descs[duck.id].short) || DUCK_DESC[duck.id] || 'A very special duck.';
+          var name  = (descs[duck.id] && descs[duck.id].displayName) || duck.name;
           var price = duck.minPrice ? 'From $' + duck.minPrice.toFixed(2) : '';
           grid.innerHTML += '<a href="product.html?id=' + duck.id + '" class="product-card">'
-            + '<div class="card-img"><img src="' + img + '" alt="' + duck.name + '" /></div>'
-            + '<div class="card-info"><h3>' + duck.name + '</h3><p>' + desc + '</p></div></a>';
+            + '<div class="card-img"><img src="' + img + '" alt="' + name + '" /></div>'
+            + '<div class="card-info"><h3>' + name + '</h3><p>' + desc + '</p></div></a>';
         });
       } catch(e) {
         grid.innerHTML = '';
         products.forEach(function(p) {
+          var name = (descs[p.id] && descs[p.id].displayName) || p.name;
           grid.innerHTML += '<a href="product.html?id=' + p.id + '" class="product-card">'
-            + '<div class="card-img"><img src="' + p.image + '" alt="' + p.name + '" /></div>'
-            + '<div class="card-info"><h3>' + p.name + '</h3><p>' + p.shortDescription + '</p></div></a>';
+            + '<div class="card-img"><img src="' + p.image + '" alt="' + name + '" /></div>'
+            + '<div class="card-info"><h3>' + name + '</h3><p>' + p.shortDescription + '</p></div></a>';
         });
       }
     }

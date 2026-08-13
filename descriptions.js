@@ -1,5 +1,5 @@
 // Loads duck descriptions from descriptions.txt
-// Format: id///image///short description///full description
+// Format: id///display name///image///short description///full description
 var _descCache = null;
 
 async function loadDescriptions() {
@@ -11,12 +11,13 @@ async function loadDescriptions() {
       line = line.trim();
       if (!line || line.startsWith('#')) return;
       var parts = line.split('///');
-      if (parts.length >= 4) {
+      if (parts.length >= 5) {
         var id = parts[0].trim().toLowerCase();
         result[id] = {
-          image: parts[1].trim(),
-          short: parts[2].trim(),
-          full:  parts[3].trim(),
+          displayName: parts[1].trim(),
+          image:       parts[2].trim(),
+          short:       parts[3].trim(),
+          full:        parts[4].trim(),
         };
       }
     });

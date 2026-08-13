@@ -122,14 +122,15 @@
         data.forEach(function(duck) {
           var image = (descs[duck.id] && descs[duck.id].image) || DUCK_IMAGES[duck.id] || duck.thumbnail;
           var desc  = (descs[duck.id] && descs[duck.id].short) || DUCK_DESC[duck.id] || 'A very special duck.';
+          var name  = (descs[duck.id] && descs[duck.id].displayName) || duck.name;
           var price = duck.minPrice ? 'From $' + duck.minPrice.toFixed(2) : '';
           var link  = 'product.html?id=' + duck.id + (IS_ADMIN ? '&admin=quack' : '');
 
           grid.innerHTML +=
             '<a href="' + link + '" class="product-card">'
-            + '<div class="card-img"><img src="' + image + '" alt="' + duck.name + '" /></div>'
+            + '<div class="card-img"><img src="' + image + '" alt="' + name + '" /></div>'
             + '<div class="card-info">'
-            + '<h3>' + duck.name + '</h3>'
+            + '<h3>' + name + '</h3>'
             + '<p>' + desc + '</p>'
             + '</div>'
             + '</a>';
@@ -140,12 +141,13 @@
         console.log('Falling back to products.js:', err.message);
         grid.innerHTML = '';
         products.forEach(function(p) {
+          var name = (descs[p.id] && descs[p.id].displayName) || p.name;
           var link = 'product.html?id=' + p.id + (IS_ADMIN ? '&admin=quack' : '');
           grid.innerHTML +=
             '<a href="' + link + '" class="product-card">'
-            + '<div class="card-img"><img src="' + p.image + '" alt="' + p.name + '" /></div>'
+            + '<div class="card-img"><img src="' + p.image + '" alt="' + name + '" /></div>'
             + '<div class="card-info">'
-            + '<h3>' + p.name + '</h3>'
+            + '<h3>' + name + '</h3>'
             + '<p>' + p.shortDescription + '</p>'
             + '</div>'
             + '</a>';

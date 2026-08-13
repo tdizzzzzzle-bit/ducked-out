@@ -717,11 +717,18 @@
 
     var page = document.getElementById('productPage');
 
-    if (!product) {
-      page.innerHTML = '<p>Product not found. <a href="shop.html">Back to shop</a></p>';
-    } else {
+    // Pre-declared at true top-level (not inside renderProductPage) because
+    // handleBuyNow() reads this directly and relies on var-hoisting to see
+    // the same binding. Do not move this inside the function below.
+    var displayName = product ? product.name : '';
+
+    function renderProductPage() {
+      if (!product) {
+        page.innerHTML = '<p>Product not found. <a href="shop.html">Back to shop</a></p>';
+        return;
+      }
       document.title = product.name + ' — Duck & Cover';
-      var displayName = product.name;
+      displayName = product.name;
       var swatchHTML = '';
 
       var adminHTML = '';
@@ -849,6 +856,37 @@
           '<a href="product.html?id=' + p.id + (IS_ADMIN ? '&admin=quack' : '') + '" class="product-card">'
           + '<div class="card-img"><img src="' + p.image + '" alt="' + p.name + '" /></div>'
           + '<div class="card-info"><h3>' + p.name + '</h3><p>' + p.shortDescription + '</p></div></a>';
+      });
+    
+    }
+
+    if (product) {
+      renderProductPage();
+    } else {
+      // Not in the static products.js list — this duck may only exist via
+      // Printful + descriptions.txt (no manual products.js entry needed).
+      // Check the live catalog before giving up.
+      page.innerHTML = '<p>Loading...</p>';
+      getCatalog().then(function(catalog) {
+        var match = catalog.find(function(d) { return d.id === productId; });
+        if (match) {
+          product = {
+            id:               match.id,
+            name:             match.name,
+            shortDescription: '',
+            description:      '',
+            price:            28,
+            image:            match.thumbnail || 'Gerald.svg',
+            stripeLink:       '',
+          };
+          console.log('[product] "' + productId + '" not in products.js — resolved from live catalog instead.');
+        } else {
+          console.warn('[product] "' + productId + '" not found in products.js or the live catalog.');
+        }
+        renderProductPage();
+      }).catch(function(err) {
+        console.error('[product] catalog fallback failed:', err.message);
+        renderProductPage();
       });
     }
   </script>

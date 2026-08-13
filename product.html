@@ -850,12 +850,30 @@
       loadStock(product.id);
 
       var relGrid = document.getElementById('relatedGrid');
-      products.forEach(function(p) {
-        if (p.id === product.id) return;
-        relGrid.innerHTML +=
-          '<a href="product.html?id=' + p.id + (IS_ADMIN ? '&admin=quack' : '') + '" class="product-card">'
-          + '<div class="card-img"><img src="' + p.image + '" alt="' + p.name + '" /></div>'
-          + '<div class="card-info"><h3>' + p.name + '</h3><p>' + p.shortDescription + '</p></div></a>';
+      Promise.all([getCatalog(), loadDescriptions()]).then(function(results) {
+        var catalog = results[0], descs = results[1];
+        var others = catalog.filter(function(d) { return d.id !== product.id; }).slice(0, 4);
+        relGrid.innerHTML = '';
+        others.forEach(function(d) {
+          var entry = descs[d.id];
+          var name  = (entry && entry.displayName) || d.name;
+          var image = (entry && entry.image) || d.thumbnail;
+          var link  = 'product.html?id=' + d.id + (IS_ADMIN ? '&admin=quack' : '');
+          relGrid.innerHTML +=
+            '<a href="' + link + '" class="product-card">'
+            + '<div class="card-img"><img src="' + image + '" alt="' + name + '" /></div>'
+            + '<div class="card-info"><h3>' + name + '</h3></div></a>';
+        });
+      }).catch(function(err) {
+        // Fallback to the static list if the catalog/descriptions fetch fails
+        console.warn('[related] dynamic fetch failed, using products.js:', err.message);
+        products.filter(function(p) { return p.id !== product.id; }).slice(0, 4).forEach(function(p) {
+          var link = 'product.html?id=' + p.id + (IS_ADMIN ? '&admin=quack' : '');
+          relGrid.innerHTML +=
+            '<a href="' + link + '" class="product-card">'
+            + '<div class="card-img"><img src="' + p.image + '" alt="' + p.name + '" /></div>'
+            + '<div class="card-info"><h3>' + p.name + '</h3><p>' + p.shortDescription + '</p></div></a>';
+        });
       });
     
     }

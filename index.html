@@ -129,6 +129,9 @@
           if(bi === -1) return -1;
           return ai - bi;
         });
+        // Hard cap at 8 — keeps the homepage fast as the catalog grows.
+        // Full flock is always on shop.html.
+        data = data.slice(0, 8);
         grid.innerHTML = '';
         data.forEach(function(duck) {
           var img   = (descs[duck.id] && descs[duck.id].image) || DUCK_IMAGES[duck.id] || duck.thumbnail || 'Gerald.svg';
@@ -141,7 +144,7 @@
         });
       } catch(e) {
         grid.innerHTML = '';
-        products.forEach(function(p) {
+        products.slice(0, 8).forEach(function(p) {
           var name = (descs[p.id] && descs[p.id].displayName) || p.name;
           grid.innerHTML += '<a href="product.html?id=' + p.id + '" class="product-card">'
             + '<div class="card-img"><img src="' + p.image + '" alt="' + name + '" /></div>'
